@@ -277,10 +277,10 @@ export const SPRITE_CHARACTER_PRESETS: SpritePreset[] = [
 
   // ── Bosses ────────────────────────────────────────────────────────────────
   {
-    id: 'demon-lord',
-    label: 'Demon lord (boss)',
+    id: 'infernal-tyrant',
+    label: 'Infernal tyrant (boss)',
     prompt:
-      'Towering demon lord boss, dark crimson muscular body, massive curved horns, large tattered black wings, glowing molten cracks across the skin, huge flaming greatsword. Imposing, menacing silhouette.',
+      'Towering infernal tyrant boss, dark crimson muscular body, massive curved horns, large tattered black wings, glowing molten cracks across the skin, huge flaming greatsword. Imposing, menacing silhouette.',
   },
   {
     id: 'stone-golem',

@@ -50,6 +50,18 @@ in the top bar:
   map) generated 8 at a time, driven by a two-call "art director → painter"
   pipeline that keeps the set varied and never repetitive.
 
+### Parallax Studio
+![Parallax Studio — Sky / Far / Mid / Near depth layers with a live multi-layer scrolling preview and ZIP export](docs/screenshots/mode-parallax.png)
+
+### Tile Studio
+![Tile Studio — a 13-tile autotile set generated in one call, with a live "how tiles fit together" platform preview](docs/screenshots/mode-tiles.png)
+
+### Props Studio
+![Props Studio — an open-ended decoration library of transparent scatter sprites grown 8 at a time](docs/screenshots/mode-props.png)
+
+### Sprite Studio
+![Sprite Studio — a character walk-cycle keyframe sheet with a live looping animation player](docs/screenshots/mode-sprite.png)
+
 ## Features
 
 - **Click an edge → extend in that direction.** Spatial controls on the image,

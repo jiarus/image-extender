@@ -917,85 +917,85 @@ export const TILESET_PRESETS: TilePreset[] = [
     id: 'grass-dirt',
     label: 'Lush meadow',
     prompt:
-      'Lush meadow turf — a vibrant fresh-green grass cap of soft blades crowning the top, a rich chocolate-brown soil core flecked with tiny pebbles and pale fibrous roots, a sprinkle of small white and buttercup-yellow wildflowers and clover nestled in the grass, gentle hand-painted shading, warm and inviting storybook palette',
+      'Lavishly hand-painted lush meadow turf in premium storybook game-art style — a luminous fresh spring-green grass cap of soft layered blades catching warm sunlight along the top, a rich chocolate-brown loam core with gentle volumetric shading, fine even speckles of tiny pebbles and pale fibrous roots, a delicate scatter of small white and buttercup-yellow wildflowers and clover tucked in the grass, dewy soft highlights, cohesive warm inviting palette, crisp readable shapes, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'mossy-stone',
     label: 'Mossy stone',
     prompt:
-      'Weathered grey granite — a cool slate-grey stone core with fine hairline cracks and small embedded pebbles, a blanket of velvety emerald moss draped over the top and trailing into a few upper cracks, scattered pale sage lichen freckles, soft painterly highlights, calm mossy-forest palette',
+      'Beautifully hand-painted weathered granite in premium fantasy game-art style — a cool slate-grey stone core sculpted with soft volumetric form, fine hairline cracks and small embedded pebbles evenly distributed, a plush blanket of velvety emerald moss crowning the top and trailing softly into the upper crevices, freckles of pale sage lichen, gentle dappled forest light, painterly rim highlights, cohesive calm mossy-woodland palette, gorgeous AAA 2D platformer tileset',
   },
   {
     id: 'red-brick',
     label: 'Red brick',
     prompt:
-      'Old-town red brick — warm terracotta and clay-red bricks in a clean offset bond with deep umber mortar, softly chipped rounded edges, gentle sun-faded weathering, a thin run of green moss only along the very top, even matte hand-painted finish',
+      'Exquisitely hand-painted old-town brickwork in cozy storybook game-art style — warm terracotta and clay-red bricks in a clean offset bond with deep umber mortar, soft rounded chips and gentle sun-faded weathering, subtle baked-clay color variation brick to brick, a thin living run of emerald moss along the very top edge only, smooth even matte finish, soft ambient afternoon light, cohesive warm earthen palette, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'snowy-stone',
     label: 'Snowy peak',
     prompt:
-      'Snow-capped mountain rock — a slate-grey stone core threaded with pale glacier-blue mineral veins, a thick pillow of pristine white snow crowning the top with a faint cool blue underglow, a couple of small icicles hanging from the top edge, crisp clean shapes, fresh wintry palette',
+      'Gorgeously hand-painted snow-capped mountain rock in crisp wintry game-art style — a slate-grey stone core threaded with pale glacier-blue mineral veins and soft volumetric shadow, a thick pristine pillow of fresh powder snow crowning the top with a delicate cool-blue underglow and sparkling specks, a couple of slender icicles hanging from the top edge, clean luminous shapes, cohesive fresh alpine palette, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'wood-planks',
     label: 'Oak planks',
     prompt:
-      'Stacked weathered oak planks — warm honey-amber timber with flowing wood grain and soft knots, slightly darker worn edges, thin shadowed gaps between boards, the occasional iron nail, cozy hand-painted woodland-cabin palette',
+      'Warmly hand-painted stacked oak planks in cozy woodland-cabin game-art style — honey-amber timber with flowing painterly wood grain and soft knots, slightly darker lovingly worn edges, thin softly-shadowed gaps between boards, the occasional weathered iron nail, gentle ambient candle-warm light, cohesive rich amber palette, smooth inviting finish, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'sand-stone',
     label: 'Desert temple',
     prompt:
-      'Sun-bleached desert sandstone — a warm golden-tan core with gentle wind-rippled striations and softly eroded rounded edges, faint ancient carved glyphs pressed into the surface, a dusting of pale sand along the top, dry sunlit ochre palette',
+      'Elegantly hand-painted sun-bleached temple sandstone in golden-hour game-art style — a warm golden-tan core with gentle wind-rippled striations and softly eroded rounded edges, faint ancient carved glyphs pressed delicately into the surface, a fine dusting of pale sand catching light along the top, soft warm sunlit shading, cohesive dry ochre-and-amber palette, serene and majestic, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'lava-rock',
     label: 'Volcanic rock',
     prompt:
-      'Volcanic basalt — a rough porous jet-black rock core with molten orange, amber and gold lava glowing deep inside the cracks, a charred darker underside, faint rising heat shimmer, intense ember palette, glow confined to the cracks only',
+      'Dramatically hand-painted volcanic basalt in moody fantasy game-art style — a rough porous jet-black rock core with rich charcoal form, rivers of molten orange, amber and gold lava glowing deep inside the cracks with a soft inner bloom, a charred darker underside, faint rising heat shimmer, glow confined strictly to the cracks, cohesive intense ember palette against deep darks, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'cave-stone',
     label: 'Glow cave',
     prompt:
-      'Damp glow-cavern rock — a charcoal-grey stone core with a subtle teal mineral sheen and cool shadowy crevices, clusters of small luminescent blue-and-cyan mushrooms lining the top, a soft bioluminescent glow, mysterious underground palette',
+      'Atmospherically hand-painted glow-cavern rock in enchanting game-art style — a charcoal-grey stone core with a subtle teal mineral sheen and cool shadowed crevices, clusters of small luminescent blue-and-cyan mushrooms lining the top edge casting a gentle bioluminescent bloom, faint glittering mineral flecks, cohesive mysterious cool palette with soft glowing accents, dreamy underground mood, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'crystal-ice',
     label: 'Crystal ice',
     prompt:
-      'Enchanted glacier ice — a translucent pale-cyan ice core with faceted crystal shards glinting inside, a delicate frosted-snow cap on top, fine internal fractures, cold glassy white and sky-blue highlights, clean magical winter palette',
+      'Magically hand-painted enchanted glacier ice in luminous fantasy game-art style — a translucent pale-cyan ice core with faceted crystal shards glinting softly inside, a delicate frosted-snow cap on top, fine internal fractures catching light, cool glassy white and sky-blue highlights with gentle prismatic sparkle, cohesive clean magical winter palette, serene and ethereal, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'jungle-moss',
     label: 'Jungle floor',
     prompt:
-      'Rainforest floor — a deep damp dark-earth core laced with pale tangled roots, a thick cushion of emerald and lime moss across the top, small tropical ferns and a few tiny red-capped mushrooms sprouting up top, lush humid jungle palette',
+      'Lushly hand-painted rainforest floor in vibrant adventure game-art style — a deep damp dark-earth core laced with pale tangled roots, a thick cushion of emerald and lime moss across the top, small tropical ferns and a few tiny red-capped mushrooms sprouting along the crown, warm dappled jungle light filtering through, rich saturated humid greens, cohesive lively palette, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'autumn-soil',
     label: 'Autumn earth',
     prompt:
-      'Autumn woodland soil — a rich russet-brown earth core speckled with tiny stones and roots, a top crown of golden, amber and warm-crimson fallen leaves over short dry grass, cozy seasonal palette, soft warm painterly shading',
+      'Cozily hand-painted autumn woodland soil in warm seasonal game-art style — a rich russet-brown earth core softly speckled with tiny stones and roots, a generous crown of golden, amber and warm-crimson fallen leaves layered over short dry grass along the top, soft golden-hour shading, gentle painterly highlights, cohesive warm harvest palette, inviting and nostalgic, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'temple-gold',
     label: 'Marble & gold',
     prompt:
-      'Ancient temple marble — a pale ivory marble core with soft grey veining, ornate engraved scrollwork picked out in warm antique-gold inlay, gently chipped corners, a whisper of moss settled in the top grooves, elegant regal palette',
+      'Opulently hand-painted ancient temple marble in regal fantasy game-art style — a pale ivory marble core with soft grey veining and gentle polished sheen, ornate engraved scrollwork picked out in warm antique-gold inlay, delicately chipped corners, a whisper of moss settled in the top grooves, soft elegant ambient light, cohesive luxurious ivory-and-gold palette, majestic and refined, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'obsidian',
     label: 'Obsidian glass',
     prompt:
-      'Polished obsidian — a glossy jet-black volcanic-glass core with a smooth surface and a subtle teal-and-gold iridescent sheen, sharp glassy chipped edges catching cool reflections, sleek dark luxurious palette',
+      'Sleekly hand-painted polished obsidian in luxurious dark-fantasy game-art style — a glossy jet-black volcanic-glass core with smooth sculpted form, a subtle teal-and-gold iridescent sheen rippling across the surface, sharp glassy chipped edges catching cool reflections, soft mysterious highlights, cohesive deep luxe palette with jewel-toned accents, elegant and dramatic, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'coral-reef',
     label: 'Coral reef',
     prompt:
-      'Sunlit coral reef rock — a warm sandy-tan stone core encrusted with turquoise and bright-orange coral, tiny white shells and barnacles dotted about, a soft seafoam-green algae cap along the top, cheerful clean underwater palette (no pinks)',
+      'Cheerfully hand-painted sunlit coral reef rock in bright underwater game-art style — a warm sandy-tan stone core encrusted with turquoise and orange coral, tiny white shells and barnacles dotted about, a soft seafoam-green algae cap along the top, gentle dappled sunlight filtering through water, cohesive vivid clean ocean palette kept clear of pinks and reds, playful and luminous, beautiful AAA 2D platformer tileset',
   },
 ]
 
