@@ -1,11 +1,11 @@
 'use client'
 
 export const PARALLAX_TARGET_PRESETS: { value: number; label: string; hint: string }[] = [
-  { value: 3840, label: '3840 px', hint: '2 × 1080p screens' },
-  { value: 5120, label: '5120 px', hint: '4 × 720p screens' },
-  { value: 7680, label: '7680 px', hint: '4 × 1080p screens' },
-  { value: 10240, label: '10240 px', hint: '8 × 720p screens' },
-  { value: 15360, label: '15360 px', hint: '8 × 1080p screens' },
+  { value: 3840, label: '3840 像素', hint: '2 个 1080p 屏宽' },
+  { value: 5120, label: '5120 像素', hint: '4 个 720p 屏宽' },
+  { value: 7680, label: '7680 像素', hint: '4 个 1080p 屏宽' },
+  { value: 10240, label: '10240 像素', hint: '8 个 720p 屏宽' },
+  { value: 15360, label: '15360 像素', hint: '8 个 1080p 屏宽' },
 ]
 
 /** Hard upper bound on auto-extend iterations as a cost/time safety. */
@@ -65,49 +65,49 @@ export interface LayerRoleSpec {
 export const LAYER_ROLES: Record<LayerRole, LayerRoleSpec> = {
   sky: {
     role: 'sky',
-    label: 'Sky · Back',
-    short: 'Sky',
+    label: '天空 · 远后景',
+    short: '天空',
     defaultSpeed: 0.05,
     isOpaque: true,
     defaultPrompt:
       'A wide continuous sky with horizontally uniform color — every horizontal position has the same sky tone, with any gradient running only top-to-bottom (e.g. lighter at the horizon, deeper toward the zenith). Soft level horizon with a thin band of very-distant silhouette at the bottom. Even ambient omnidirectional light. No sun, no moon, no sunbeams, no sunrise or sunset glow on one side, no directional lighting, no vignette, no characters, no foreground objects. Designed to repeat seamlessly when tiled horizontally.',
-    hint: 'Opaque back layer. Drifts slowest.',
+    hint: '不透明背景层，滚动最慢。',
     defaultWidth: 1899,
     defaultHeight: 768,
   },
   far: {
     role: 'far',
-    label: 'Far · Distant',
-    short: 'Far',
+    label: '远景 · 远处轮廓',
+    short: '远景',
     defaultSpeed: 0.25,
     isOpaque: false,
     defaultPrompt:
       'Far-distant silhouettes only — distant mountain range or faint city skyline, sitting in the lower-middle band of the frame. No sky, no mid-ground, no foreground.',
-    hint: 'Distant silhouettes. Drifts slowly.',
+    hint: '远处轮廓层，滚动较慢。',
     defaultWidth: 1952,
     defaultHeight: 544,
   },
   mid: {
     role: 'mid',
-    label: 'Mid · Mid-ground',
-    short: 'Mid',
+    label: '中景 · 场景主体',
+    short: '中景',
     defaultSpeed: 0.55,
     isOpaque: false,
     defaultPrompt:
       'Mid-distance scene elements only — mid-size trees and terrain features sitting in the middle band of the frame. No sky, no far background, no near foreground.',
-    hint: 'Mid-distance shapes. Medium speed.',
+    hint: '中距离形体层，滚动中速。',
     defaultWidth: 1952,
     defaultHeight: 544,
   },
   near: {
     role: 'near',
-    label: 'Near · Foreground',
-    short: 'Near',
+    label: '近景 · 前景装饰',
+    short: '近景',
     defaultSpeed: 1.0,
     isOpaque: false,
     defaultPrompt:
       'Near foreground elements only — near grass blades, foreground bushes, foreground rocks, near tree trunks along the bottom of the frame. No sky, no mid-ground, no characters.',
-    hint: 'Foreground props. Drifts fastest.',
+    hint: '前景装饰层，滚动最快。',
     defaultWidth: 1952,
     defaultHeight: 544,
   },

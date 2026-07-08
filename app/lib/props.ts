@@ -38,49 +38,49 @@ export interface PropPreset {
 export const PROP_PRESETS: PropPreset[] = [
   {
     id: 'forest',
-    label: 'Forest glade',
+    label: '森林空地',
     prompt:
       'Lush temperate woodland — sun-dappled greens, mossy emerald, warm oak-brown earth tones, soft golden daylight, rich natural earthy palette',
   },
   {
     id: 'cave',
-    label: 'Glowing cave',
+    label: '荧光洞窟',
     prompt:
       'Damp underground cavern — cool slate-grey and charcoal, soft teal and cyan bioluminescent glow, muted earthy darks, low moody ambient light',
   },
   {
     id: 'desert',
-    label: 'Desert oasis',
+    label: '沙漠绿洲',
     prompt:
       'Sun-baked arid badlands — bleached sandstone, warm tan and ochre, muted sage and olive accents, dry dusty palette under bright flat sun',
   },
   {
     id: 'snow',
-    label: 'Snowy peaks',
+    label: '雪山',
     prompt:
       'Frozen alpine world — snow whites, cool slate greys, pale ice-blue accents, crisp clean winter palette under soft overcast light',
   },
   {
     id: 'volcanic',
-    label: 'Volcanic',
+    label: '火山',
     prompt:
       'Scorched volcanic terrain — black basalt and charcoal, ash greys, smouldering ember-orange and amber glow accents, hot dark palette (no pinks)',
   },
   {
     id: 'jungle',
-    label: 'Jungle ruins',
+    label: '雨林遗迹',
     prompt:
       'Overgrown tropical jungle — deep saturated greens, weathered mossy stone, warm amber and violet accents, humid lush palette in dappled shade',
   },
   {
     id: 'swamp',
-    label: 'Misty swamp',
+    label: '迷雾沼泽',
     prompt:
       'Murky wetland — muted olive and bog greens, slimy dark browns, pale sickly highlights, damp desaturated foggy palette',
   },
   {
     id: 'candy',
-    label: 'Candy land',
+    label: '糖果世界',
     prompt:
       'Playful confectionery world — minty teals, soft creams and caramels, glossy purple and blue sugar tones, sweet bright pastel palette kept clear of pink and red',
   },

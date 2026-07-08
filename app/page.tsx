@@ -19,9 +19,21 @@ import { PROP_BATCH, PROP_BATCH_COLS, PROP_BATCH_H, PROP_BATCH_ROWS, PROP_BATCH_
 import { SPRITE_ANIMATIONS, SPRITE_FRAME_COUNT, SPRITE_FRAME_SIZE, SPRITE_GRID_COLS, SPRITE_GRID_ROWS, SPRITE_SHEET_H, SPRITE_SHEET_W, SPRITE_STRIP_H, SPRITE_STRIP_W, SpriteAnimType, SpriteFrame, SpriteSheet, createEmptySpriteSheet } from '@/app/lib/sprite'
 import { BODY_PLANS, BodyPlan, isAirborneAnim } from '@/app/lib/bodyPlans'
 import { CORNER_GRAFTS, ENABLE_CORNER_RECONCILE, TILESET_ATLAS_EXTRUDE_PX, TILESET_BY_ROLE, TILESET_COLS, TILESET_PADDED_SHEET_H, TILESET_PADDED_SHEET_W, TILESET_PADDED_STRIDE, TILESET_ROWS, TILESET_SHEET_H, TILESET_SHEET_W, TILESET_SLOTS, TILESET_TILE_SIZE, TILE_TEMPLATE_CELL, TILE_TEMPLATE_COLS, TILE_TEMPLATE_H, TILE_TEMPLATE_MASK, TILE_TEMPLATE_ROWS, TILE_TEMPLATE_SAMPLES, TILE_TEMPLATE_W, TileSetRole, TileSetSlot, alignAiOutputToTemplate, applyFeatheredRoleMask, buildTileSheetGuideDataUrl, createEmptyTileSet, rebuildCornerTile, reconcileAllCorners, templateRoleForCell } from '@/app/lib/tileset'
-import { alignSpriteFramesToBaseline, applyFullContextResult, centerSpriteFramesHorizontally, chromaKeyToAlpha, createChunkedExtension, createFullContextExtension, getImageDimensions, harmonizeHorizontalSeams, isolatePrimarySpriteComponent, isAiExtensionUnfilled, makeHorizontallyTileable, makeTileable2D, makeVerticallyTileable, measureSeamResidual, normalizeSpriteFrameScale, removeFrameBorder, removeUploadedBackground, sliceImageGrid, stitchExtendedChunk } from '@/app/utils/imageProcessor'
+import { alignSpriteFramesToBaseline, applyFullContextResult, centerSpriteFramesHorizontally, chromaKeyToAlpha, createChunkedExtension, createFullContextExtension, getImageDimensions, harmonizeHorizontalSeams, isolatePrimarySpriteComponent, isAiExtensionUnfilled, makeHorizontallyTileable, makeTileable2D, makeVerticallyTileable, measureSeamResidual, normalizeSpriteFrameScale, removeFrameBorder, removeUploadedBackground, resizeImageToSize, sliceImageGrid, stitchExtendedChunk } from '@/app/utils/imageProcessor'
 import { SubjectBounds, drawPoseGuideSheet, measureSubjectBounds } from '@/app/utils/poseRig'
 import JSZip from 'jszip'
+
+type ProviderInfo = {
+  hasServerKey: boolean
+  providerName: string
+  usingCustomEndpoint: boolean
+}
+
+const DEFAULT_PROVIDER_INFO: ProviderInfo = {
+  hasServerKey: false,
+  providerName: 'OpenRouter',
+  usingCustomEndpoint: false,
+}
 
 export default function Home() {
   // Image state
@@ -191,6 +203,8 @@ export default function Home() {
   // BYOK: API key + model are persisted to localStorage. We start in a
   // "hydrating" state so we don't flash the modal before reading storage.
   const [apiKey, setApiKey] = useState('')
+  const [providerInfo, setProviderInfo] =
+    useState<ProviderInfo>(DEFAULT_PROVIDER_INFO)
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODEL)
   const skipArtDirectorReview = skipsArtDirectorReview(selectedModel)
   const [hydrated, setHydrated] = useState(false)
@@ -203,13 +217,41 @@ export default function Home() {
 
   // Hydrate from localStorage on mount, and decide whether to show the modal.
   useEffect(() => {
-    try {
-      const k = localStorage.getItem(STORAGE_KEY) || ''
-      const m = localStorage.getItem(STORAGE_MODEL) || ''
-      const savedMode = localStorage.getItem(STORAGE_MODE) || ''
-      setApiKey(k)
-      if (m && MODELS.some((mm) => mm.value === m)) {
-        setSelectedModel(m)
+    let cancelled = false
+
+    const hydrate = async () => {
+      let nextProviderInfo = DEFAULT_PROVIDER_INFO
+      let storedKey = ''
+      let storedModel = ''
+      let savedMode = ''
+
+      try {
+        const response = await fetch('/api/provider-config', { cache: 'no-store' })
+        if (response.ok) {
+          const data = await response.json()
+          nextProviderInfo = {
+            hasServerKey: data?.hasServerKey === true,
+            providerName:
+              typeof data?.providerName === 'string' && data.providerName.trim()
+                ? data.providerName.trim()
+                : DEFAULT_PROVIDER_INFO.providerName,
+            usingCustomEndpoint: data?.usingCustomEndpoint === true,
+          }
+        }
+      } catch {}
+
+      try {
+        storedKey = localStorage.getItem(STORAGE_KEY) || ''
+        storedModel = localStorage.getItem(STORAGE_MODEL) || ''
+        savedMode = localStorage.getItem(STORAGE_MODE) || ''
+      } catch {}
+
+      if (cancelled) return
+
+      setProviderInfo(nextProviderInfo)
+      setApiKey(storedKey)
+      if (storedModel && MODELS.some((mm) => mm.value === storedModel)) {
+        setSelectedModel(storedModel)
       }
       if (
         savedMode === 'parallax' ||
@@ -220,17 +262,19 @@ export default function Home() {
       ) {
         setModeState(savedMode)
       }
-      if (!k) {
-        setApiKeyRequired(true)
-        setShowApiKeyModal(true)
-      }
-    } catch {
-      // localStorage unavailable (private mode, etc.) — show modal anyway.
-      setApiKeyRequired(true)
-      setShowApiKeyModal(true)
-    } finally {
+
+      const needsClientKey = !storedKey && !nextProviderInfo.hasServerKey
+      setApiKeyRequired(needsClientKey)
+      setShowApiKeyModal(needsClientKey)
       setHydrated(true)
     }
+
+    void hydrate()
+
+    return () => {
+      cancelled = true
+    }
+      // localStorage unavailable (private mode, etc.) — show modal anyway.
   }, [])
 
   /** Persist mode + reset parallax-specific transient state on change. */
@@ -271,22 +315,46 @@ export default function Home() {
 
   const handleClearApiKey = () => {
     setApiKey('')
+    if (!providerInfo.hasServerKey) {
+      setApiKeyRequired(true)
+      setShowApiKeyModal(true)
+    }
   }
 
   const handleEditApiKey = () => {
-    setApiKeyRequired(false)
+    setApiKeyRequired(!apiKey && !providerInfo.hasServerKey)
     setShowApiKeyModal(true)
   }
 
   const ensureCanGenerate = (): boolean => {
     // If no key and we're in required mode, re-open the modal instead of
     // making a request that would fail with 401.
-    if (!apiKey && apiKeyRequired) {
+    if (!apiKey && !providerInfo.hasServerKey) {
+      setApiKeyRequired(true)
       setShowApiKeyModal(true)
       return false
     }
     return true
   }
+
+  const normalizeGeneratedImageSize = useCallback(
+    async (imageUrl: string, width: number, height: number) => {
+      const normalizedModel = selectedModel.trim().toLowerCase()
+      const isGptImageModel =
+        normalizedModel === 'gpt-image-2' ||
+        normalizedModel.endsWith('/gpt-image-2') ||
+        normalizedModel.includes('gpt-image')
+
+      if (!isGptImageModel) return imageUrl
+
+      try {
+        return await resizeImageToSize(imageUrl, width, height)
+      } catch {
+        return imageUrl
+      }
+    },
+    [selectedModel]
+  )
 
   // ── Parallax layer helpers ─────────────────────────────────────────────────
 
@@ -542,7 +610,7 @@ export default function Home() {
 
   const handleGenerateImage = async () => {
     if (!generatePrompt.trim()) {
-      setError('Please describe the image you want to generate.')
+      setError('请先描述你想生成的图片。')
       return
     }
     if (!ensureCanGenerate()) return
@@ -580,21 +648,26 @@ export default function Home() {
         throw new Error(data.error || 'Failed to generate image')
       }
       if (!data.imageUrl) throw new Error('No image returned from API')
+      const normalizedImageUrl = await normalizeGeneratedImageSize(
+        data.imageUrl,
+        generateWidth,
+        generateHeight
+      )
       const anchorPromptUsed = generatePrompt.trim()
       if (mode === 'parallax') {
         // Route into the active layer (with chroma-keying for non-sky roles).
-        await applyImageToActiveLayer(data.imageUrl, { fromUpload: false })
+        await applyImageToActiveLayer(normalizedImageUrl, { fromUpload: false })
         setOriginalFileName(`parallax_${activeLayer?.role ?? 'layer'}.png`)
         if (layerRole === WORKFLOW_ORDER[0] && anchorPromptUsed) {
           void deriveSceneBrief(anchorPromptUsed)
         }
       } else {
-        loadDataUrlAsImage(data.imageUrl, 'generated.png')
+        loadDataUrlAsImage(normalizedImageUrl, 'generated.png')
       }
       setShowGenerateModal(false)
       setGeneratePrompt('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate image')
+      setError(err instanceof Error ? err.message : '生成图片失败')
     } finally {
       setGenerating(false)
     }
@@ -651,6 +724,26 @@ export default function Home() {
           const err = new Error(data.error || 'Failed to extend image') as Error & { status?: number }
           err.status = response.status
           throw err
+        }
+        const targetWidth =
+          typeof (body as any)?.extensionInfo?.newWidth === 'number'
+            ? (body as any).extensionInfo.newWidth
+            : typeof (body as any)?.chunkInfo?.direction === 'string'
+              ? ((body as any).chunkInfo.direction === 'left' || (body as any).chunkInfo.direction === 'right'
+                  ? (body as any).chunkInfo.chunkWidth + (body as any).chunkInfo.extensionSize
+                  : (body as any).chunkInfo.originalWidth)
+              : null
+        const targetHeight =
+          typeof (body as any)?.extensionInfo?.newHeight === 'number'
+            ? (body as any).extensionInfo.newHeight
+            : typeof (body as any)?.chunkInfo?.direction === 'string'
+              ? ((body as any).chunkInfo.direction === 'up' || (body as any).chunkInfo.direction === 'down'
+                  ? (body as any).chunkInfo.chunkHeight + (body as any).chunkInfo.extensionSize
+                  : (body as any).chunkInfo.originalHeight)
+              : null
+
+        if (targetWidth && targetHeight) {
+          return normalizeGeneratedImageSize(data.imageUrl as string, targetWidth, targetHeight)
         }
         return data.imageUrl as string
       }
@@ -762,7 +855,7 @@ export default function Home() {
         }
       }
     },
-    [currentImageDimensions, debugMode, apiKey, selectedModel, mode, sceneBrief]
+    [currentImageDimensions, debugMode, apiKey, selectedModel, mode, sceneBrief, normalizeGeneratedImageSize]
   )
 
   /**
@@ -793,7 +886,7 @@ export default function Home() {
     if (!sourceImage) return
     setError(null)
     setLoading(true)
-    setProgressMsg(`Extending ${direction}…`)
+    setProgressMsg(`正在向${direction === 'up' ? '上' : direction === 'down' ? '下' : direction === 'left' ? '左' : '右'}扩展…`)
     setActiveDirection(direction)
     setImageBeforeExtension(sourceImage)
     setLastExtensionParams({ direction, customPrompt, artStyle, layerRole })
@@ -1110,7 +1203,14 @@ export default function Home() {
       if (!data.imageUrl) throw new Error('No image returned from API')
 
       setTileProgressMsg(`Processing ${labelLower}…`)
-      const processed = await postProcessTile(role, data.imageUrl)
+      const processed = await postProcessTile(
+        role,
+        await normalizeGeneratedImageSize(
+          data.imageUrl,
+          TILESET_TILE_SIZE,
+          TILESET_TILE_SIZE
+        )
+      )
 
       // Keep corners reconciled with their edge neighbors after a single
       // regen (the generate-all path reconciles the whole set at once). We
@@ -1364,10 +1464,15 @@ export default function Home() {
         throw new Error(data.error || 'Failed to generate tile sheet')
       }
       if (!data.imageUrl) throw new Error('No image returned from API')
+      const normalizedSheetUrl = await normalizeGeneratedImageSize(
+        data.imageUrl,
+        TILE_TEMPLATE_W,
+        TILE_TEMPLATE_H
+      )
       if (tileStopRef.current) return null
 
       phase = 'Aligning to template'
-      const aligned = await alignAiOutputToTemplate(data.imageUrl)
+      const aligned = await alignAiOutputToTemplate(normalizedSheetUrl)
       if (tileStopRef.current) return null
 
       phase = 'Slicing template'
@@ -1701,7 +1806,7 @@ export default function Home() {
     try {
       const sheet = await buildTileSheetDataUrl()
       if (!sheet) {
-        setError('Generate at least one tile before downloading the sheet.')
+        setError('请至少先生成一个地块再下载图集。')
         return
       }
       const baseName = (tilePrompt.trim().slice(0, 24) || 'tileset').replace(
@@ -1739,7 +1844,7 @@ export default function Home() {
       document.body.removeChild(linkJson)
       URL.revokeObjectURL(jsonUrl)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to export sheet')
+      setError(err instanceof Error ? err.message : '导出图集失败')
     }
   }
 
@@ -1747,7 +1852,7 @@ export default function Home() {
     try {
       const populated = tileSet.filter((s) => s.imageUrl)
       if (populated.length === 0) {
-        setError('Generate at least one tile before exporting the ZIP.')
+        setError('请至少先生成一个地块再导出 ZIP。')
         return
       }
       const zip = new JSZip()
@@ -1795,7 +1900,7 @@ export default function Home() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to export ZIP')
+      setError(err instanceof Error ? err.message : '导出 ZIP 失败')
     }
   }
 
@@ -2068,11 +2173,14 @@ export default function Home() {
       }
 
       setPropProgressMsg('Slicing…')
-      const cells = await sliceImageGrid(data.imageUrl, {
+      const cells = await sliceImageGrid(
+        await normalizeGeneratedImageSize(data.imageUrl, PROP_BATCH_W, PROP_BATCH_H),
+        {
         cols: PROP_BATCH_COLS,
         rows: PROP_BATCH_ROWS,
         cellSize: PROP_TILE_SIZE,
-      })
+        }
+      )
       if (propStopRef.current) {
         dropBatch()
         return
@@ -2123,7 +2231,7 @@ export default function Home() {
       )
     } catch (err) {
       dropBatch()
-      setError(err instanceof Error ? err.message : 'Failed to generate props')
+      setError(err instanceof Error ? err.message : '生成装饰素材失败')
     } finally {
       clearInterval(tickHandle)
       setPropSetGenerating(false)
@@ -2184,7 +2292,9 @@ export default function Home() {
       }
       if (!data.imageUrl) throw new Error('No image returned from API')
       setPropProgressMsg('Processing…')
-      const processed = await postProcessProp(data.imageUrl)
+      const processed = await postProcessProp(
+        await normalizeGeneratedImageSize(data.imageUrl, PROP_TILE_SIZE, PROP_TILE_SIZE)
+      )
       setPropItems((prev) =>
         prev.map((p) =>
           p.id === id
@@ -2196,7 +2306,7 @@ export default function Home() {
       setPropItems((prev) =>
         prev.map((p) => (p.id === id ? { ...p, generating: false } : p))
       )
-      setError(err instanceof Error ? err.message : 'Failed to re-roll prop')
+      setError(err instanceof Error ? err.message : '重生成装饰素材失败')
     } finally {
       setPropProgressMsg(null)
     }
@@ -2217,7 +2327,7 @@ export default function Home() {
     try {
       const sheet = await buildPropAtlasDataUrl()
       if (!sheet) {
-        setError('Generate at least one prop before downloading the atlas.')
+        setError('请至少先生成一个装饰素材再下载图集。')
         return
       }
       const baseName = (propPrompt.trim().slice(0, 24) || 'props').replace(
@@ -2243,7 +2353,7 @@ export default function Home() {
       document.body.removeChild(linkJson)
       URL.revokeObjectURL(jsonUrl)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to export atlas')
+      setError(err instanceof Error ? err.message : '导出图集失败')
     }
   }
 
@@ -2251,7 +2361,7 @@ export default function Home() {
     try {
       const populated = propItems.filter((p) => p.imageUrl)
       if (populated.length === 0) {
-        setError('Generate at least one prop before exporting the ZIP.')
+        setError('请至少先生成一个装饰素材再导出 ZIP。')
         return
       }
       const zip = new JSZip()
@@ -2285,7 +2395,7 @@ export default function Home() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to export ZIP')
+      setError(err instanceof Error ? err.message : '导出 ZIP 失败')
     }
   }
 
@@ -2363,7 +2473,11 @@ export default function Home() {
       throw new Error(data.error || 'Failed to generate character anchor')
     }
     if (!data.imageUrl) throw new Error('No anchor image returned from API')
-    const rawImageUrl: string = data.imageUrl
+    const rawImageUrl: string = await normalizeGeneratedImageSize(
+      data.imageUrl,
+      SPRITE_FRAME_SIZE,
+      SPRITE_FRAME_SIZE
+    )
     const keyedImageUrl = await chromaKeyToAlpha(rawImageUrl)
     return { imageUrl: keyedImageUrl, rawImageUrl }
   }
@@ -2437,7 +2551,11 @@ export default function Home() {
       throw new Error(data.error || 'Failed to generate sprite sheet')
     }
     if (!data.imageUrl) throw new Error('No image returned from API')
-    const rawSheetUrl: string = data.imageUrl
+    const rawSheetUrl: string = await normalizeGeneratedImageSize(
+      data.imageUrl,
+      SPRITE_SHEET_W,
+      SPRITE_SHEET_H
+    )
     const rawCells = await sliceImageGrid(rawSheetUrl, {
       cols: SPRITE_GRID_COLS,
       rows: SPRITE_GRID_ROWS,
@@ -2827,7 +2945,7 @@ export default function Home() {
         frames: prev.frames.map((f) => ({ ...f, imageUrl: null })),
       }))
       setError(
-        err instanceof Error ? err.message : 'Failed to generate sprite sheet'
+        err instanceof Error ? err.message : '生成精灵表失败'
       )
     } finally {
       clearInterval(tickHandle)
@@ -3205,7 +3323,7 @@ export default function Home() {
         setError(
           spriteSheet.frames.some((f) => !!f.imageUrl)
             ? 'All frames are excluded — click a frame to include it before downloading.'
-            : 'Generate the sheet before downloading.'
+            : '请先生成精灵表再下载。'
         )
         return
       }
@@ -3248,7 +3366,7 @@ export default function Home() {
       URL.revokeObjectURL(jsonUrl)
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Failed to export sprite sheet'
+        err instanceof Error ? err.message : '导出精灵表失败'
       )
     }
   }
@@ -3262,7 +3380,7 @@ export default function Home() {
         setError(
           spriteSheet.frames.some((f) => !!f.imageUrl)
             ? 'All frames are excluded — click a frame to include it before exporting.'
-            : 'Generate the sheet before exporting the ZIP.'
+            : '请先生成精灵表再导出 ZIP。'
         )
         return
       }
@@ -3308,7 +3426,7 @@ export default function Home() {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to export ZIP')
+      setError(err instanceof Error ? err.message : '导出 ZIP 失败')
     }
   }
 
@@ -3504,7 +3622,7 @@ export default function Home() {
   const handleExportZip = async () => {
     const populated = parallaxLayers.filter((l) => l.imageUrl)
     if (populated.length === 0) {
-      setError('No layers to export. Generate or upload at least one layer first.')
+      setError('没有可导出的图层。请先生成或上传至少一个图层。')
       return
     }
     setProgressMsg('Packaging ZIP…')
@@ -3555,7 +3673,7 @@ export default function Home() {
       // Revoke the blob URL on the next tick so the click has fired.
       setTimeout(() => URL.revokeObjectURL(url), 1000)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to build ZIP')
+      setError(err instanceof Error ? err.message : '构建 ZIP 失败')
     } finally {
       setProgressMsg(null)
     }
@@ -3618,11 +3736,11 @@ export default function Home() {
     if (!layer || !layer.imageUrl) return
     setError(null)
     setLoading(true)
-    setProgressMsg('Harmonizing seams…')
+    setProgressMsg('正在均衡拼缝…')
     try {
       await harmonizeLayerByIdx(parallaxActiveIdx)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to harmonize')
+      setError(err instanceof Error ? err.message : '均衡拼缝失败')
     } finally {
       setLoading(false)
       setProgressMsg(null)
@@ -3676,11 +3794,11 @@ export default function Home() {
     if (!layer || !layer.imageUrl) return
     setError(null)
     setLoading(true)
-    setProgressMsg('Making tileable…')
+    setProgressMsg('正在处理为可平铺…')
     try {
       await makeLayerTileableByIdx(parallaxActiveIdx)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to make tileable')
+      setError(err instanceof Error ? err.message : '处理可平铺失败')
     } finally {
       setLoading(false)
       setProgressMsg(null)
@@ -3912,8 +4030,8 @@ export default function Home() {
           resultMessage={
             isResult
               ? variantCount > 1
-                ? `Cycle variants with ← →, then accept`
-                : 'New extension ready — accept, regenerate, or discard'
+                ? '可用 ← → 切换候选，再决定是否接受'
+                : '扩图结果已准备好，可接受、重生成或丢弃'
               : undefined
           }
           variantSelector={variantSelectorEl}
@@ -3950,8 +4068,8 @@ export default function Home() {
           resultMessage={
             isResult
               ? variantCount > 1
-                ? `Cycle variants with ← →, then accept`
-                : 'New extension ready — accept, regenerate, or discard'
+                ? '可用 ← → 切换候选，再决定是否接受'
+                : '扩图结果已准备好，可接受、重生成或丢弃'
               : undefined
           }
           variantSelector={variantSelectorEl}
@@ -3979,10 +4097,10 @@ export default function Home() {
             hint={
               isParallax
                 ? artStyle !== 'none'
-                  ? `Style: ${findStyleLabel(artStyle)} — describe what to extend in the ${LAYER_ROLES[activeLayer!.role].short.toLowerCase()} layer`
-                  : `Optional: describe what should appear further along the ${LAYER_ROLES[activeLayer!.role].short.toLowerCase()} layer…`
+                  ? `当前风格：${findStyleLabel(artStyle)}，可继续描述 ${LAYER_ROLES[activeLayer!.role].short} 图层向前延展时应出现的内容`
+                  : `可选：描述 ${LAYER_ROLES[activeLayer!.role].short} 图层继续延展后应出现的内容…`
                 : artStyle !== 'none'
-                  ? `Style: ${findStyleLabel(artStyle)} — describe what to add (optional)`
+                  ? `当前风格：${findStyleLabel(artStyle)}，可选补充要添加的内容`
                   : undefined
             }
             sceneBrief={showSceneDirection ? sceneBrief : undefined}
@@ -4011,6 +4129,9 @@ export default function Home() {
         onClearApiKey={handleClearApiKey}
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
+        providerName={providerInfo.providerName}
+        usingCustomProvider={providerInfo.usingCustomEndpoint}
+        hasServerKey={providerInfo.hasServerKey}
       />
 
       <ApiKeyModal
@@ -4018,8 +4139,10 @@ export default function Home() {
         initialValue={apiKey}
         required={apiKeyRequired}
         onSave={handleSaveApiKey}
-        onSkip={apiKeyRequired ? handleSkipApiKey : undefined}
+        onSkip={providerInfo.hasServerKey ? handleSkipApiKey : undefined}
         onClose={() => setShowApiKeyModal(false)}
+        providerName={providerInfo.providerName}
+        usingCustomProvider={providerInfo.usingCustomEndpoint}
       />
 
       <GenerateModal
@@ -4043,7 +4166,7 @@ export default function Home() {
                   activeLayer.role
                 )
                 if (!prereq) return null
-                return `Tip: ${LAYER_ROLES[prereq.role].label} isn't built yet. Layers work best when generated front-to-back (Near → Mid → Far → Sky) so palette and art direction stay consistent. You can still generate now if you're bringing your own matching assets.`
+                return `提示：${LAYER_ROLES[prereq.role].label} 还未完成。为了保持配色和美术方向一致，建议按 Near → Mid → Far → Sky 的顺序从前到后生成。如果你是导入自有素材，也可以现在继续。`
               })()
             : null
         }

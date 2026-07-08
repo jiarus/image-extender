@@ -3,7 +3,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { Icons } from '@/app/components/icons'
 import { ART_STYLE_GROUPS } from '@/app/lib/artStyles'
-import { SPRITE_ANIMATIONS, SPRITE_FRAME_COUNT, SPRITE_FRAME_SIZE, SPRITE_SHEET_H, SPRITE_SHEET_W, SpriteAnimType, SpriteFrame, SpriteSheet } from '@/app/lib/sprite'
+import {
+  SPRITE_ANIMATIONS,
+  SPRITE_FRAME_COUNT,
+  SPRITE_FRAME_SIZE,
+  SPRITE_SHEET_H,
+  SPRITE_SHEET_W,
+  SpriteAnimType,
+  SpriteFrame,
+  SpriteSheet,
+} from '@/app/lib/sprite'
 import { BODY_PLANS, BODY_PLAN_ORDER, BodyPlan } from '@/app/lib/bodyPlans'
 
 export function SpriteAnimationPlayer({
@@ -24,17 +33,10 @@ export function SpriteAnimationPlayer({
   anchorUploaded?: boolean
 }) {
   const [currentIdx, setCurrentIdx] = useState(0)
-  // Excluded frames (user-disabled) never play back.
   const populated = frames.filter((f) => !!f.imageUrl && !f.disabled)
   const hasFrames = populated.length > 0
   const frameCount = populated.length
 
-  // Advance the playhead at `fps` frames per second. We use setInterval +
-  // the functional setState form on purpose: an earlier rAF-based version
-  // captured `currentIdx` in its closure, which goes stale the moment the
-  // state updates, freezing the player after a single frame advance.
-  // Functional updates always see the latest state, so the cycle keeps
-  // running and the loop reads continuous.
   useEffect(() => {
     if (!playing || !hasFrames) return
     const intervalMs = Math.max(1, Math.round(1000 / Math.max(1, fps)))
@@ -45,9 +47,6 @@ export function SpriteAnimationPlayer({
         const next = prev + 1
         if (next >= frameCount) {
           if (loop) return 0
-          // One-shot anim hit the end — clear the interval and pause
-          // (deferred via microtask so we don't mutate other state from
-          // inside a setState updater).
           stopped = true
           window.clearInterval(id)
           queueMicrotask(() => setPlaying(false))
@@ -62,15 +61,10 @@ export function SpriteAnimationPlayer({
     }
   }, [playing, fps, loop, frameCount, hasFrames, setPlaying])
 
-  // Reset position whenever the populated count changes (new generation arrives).
   useEffect(() => {
     setCurrentIdx(0)
   }, [frameCount])
 
-  // If the user hits Play on a one-shot anim that's already parked at the
-  // last frame, rewind to frame 1 first so playback restarts from the top.
-  // Without this the effect would tick once, hit the end-guard, and pause
-  // again immediately — felt like "play doesn't work" for one-shots.
   const handleTogglePlay = () => {
     if (!playing && !loop && hasFrames && currentIdx >= frameCount - 1) {
       setCurrentIdx(0)
@@ -86,14 +80,12 @@ export function SpriteAnimationPlayer({
         className="flex items-center justify-between text-[11px] font-medium uppercase tracking-wider"
         style={{ color: 'var(--text-muted)' }}
       >
-        <span>Live playback</span>
+        <span>实时预览</span>
         <span
           className="font-mono normal-case tracking-normal"
           style={{ color: 'var(--text-muted)' }}
         >
-          {hasFrames
-            ? `Frame ${currentIdx + 1}/${populated.length} · ${fps} FPS`
-            : 'No frames yet'}
+          {hasFrames ? `第 ${currentIdx + 1}/${populated.length} 帧 · ${fps} FPS` : '暂无帧'}
         </span>
       </div>
 
@@ -112,7 +104,7 @@ export function SpriteAnimationPlayer({
         {activeFrame?.imageUrl ? (
           <img
             src={activeFrame.imageUrl}
-            alt={`Frame ${activeFrame.index + 1}`}
+            alt={`第 ${activeFrame.index + 1} 帧`}
             draggable={false}
             style={{
               width: '100%',
@@ -122,12 +114,10 @@ export function SpriteAnimationPlayer({
             }}
           />
         ) : anchorImageUrl ? (
-          // No sheet yet, but a character is locked — preview it here so the
-          // big stage isn't empty and the user sees who they're animating.
           <div className="flex h-full w-full flex-col items-center justify-center gap-4 p-6">
             <img
               src={anchorImageUrl}
-              alt="Locked character"
+              alt="已锁定角色"
               draggable={false}
               style={{
                 maxWidth: '62%',
@@ -146,34 +136,27 @@ export function SpriteAnimationPlayer({
                   border: '1px solid var(--accent)',
                 }}
               >
-                {anchorUploaded ? 'Uploaded character' : 'Character ready'}
+                {anchorUploaded ? '已上传角色' : '角色已就绪'}
               </span>
-              <span
-                className="text-[12px]"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                Pick an animation and hit generate to bring it to life
+              <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
+                选择一个动作并点击生成，让角色动起来
               </span>
             </div>
           </div>
         ) : (
-          <div
-            className="text-[13px]"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            Generate a sheet to see the animation play
+          <div className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
+            生成精灵表后即可在这里预览动画
           </div>
         )}
       </div>
 
-      {/* Transport */}
       <div className="flex items-center gap-2">
         <button
           onClick={handleTogglePlay}
           disabled={!hasFrames}
           className="icon-btn"
-          aria-label={playing ? 'Pause' : 'Play'}
-          title={playing ? 'Pause' : 'Play'}
+          aria-label={playing ? '暂停' : '播放'}
+          title={playing ? '暂停' : '播放'}
           style={{ opacity: hasFrames ? 1 : 0.4 }}
         >
           {playing ? <Icons.Pause size={14} /> : <Icons.Play size={14} />}
@@ -189,13 +172,12 @@ export function SpriteAnimationPlayer({
           }}
           disabled={!hasFrames}
           className="parallax-slider flex-1"
-          aria-label="Scrub frame"
+          aria-label="拖动查看帧"
         />
       </div>
     </div>
   )
 }
-
 
 export function SpriteFrameCell({
   frame,
@@ -217,13 +199,13 @@ export function SpriteFrameCell({
     <div
       role={interactive ? 'button' : undefined}
       tabIndex={interactive ? 0 : undefined}
-      onClick={interactive ? () => onToggle!(frame.index) : undefined}
+      onClick={interactive ? () => onToggle(frame.index) : undefined}
       onKeyDown={
         interactive
           ? (e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
-                onToggle!(frame.index)
+                onToggle(frame.index)
               }
             }
           : undefined
@@ -243,15 +225,15 @@ export function SpriteFrameCell({
       title={
         interactive
           ? disabled
-            ? `Frame ${frame.index + 1} — excluded · click to include`
-            : `Frame ${frame.index + 1} — click to exclude from animation & exports`
-          : `Frame ${frame.index + 1}`
+            ? `第 ${frame.index + 1} 帧：已排除，点击恢复`
+            : `第 ${frame.index + 1} 帧：点击后从动画和导出中排除`
+          : `第 ${frame.index + 1} 帧`
       }
     >
       {hasImage ? (
         <img
           src={frame.imageUrl as string}
-          alt={`Frame ${frame.index + 1}`}
+          alt={`第 ${frame.index + 1} 帧`}
           draggable={false}
           className="block h-full w-full"
           style={{
@@ -275,8 +257,6 @@ export function SpriteFrameCell({
         </div>
       )}
 
-      {/* Generating overlay: spinner on each pending cell while the AI paints
-          the sheet. Shows on the placeholder until the real frame arrives. */}
       {loading && !hasImage && (
         <div
           className="absolute inset-0 flex items-center justify-center"
@@ -286,7 +266,6 @@ export function SpriteFrameCell({
         </div>
       )}
 
-      {/* Excluded overlay: diagonal hatch + EXCLUDED badge */}
       {disabled && (
         <div
           className="pointer-events-none absolute inset-0 flex items-center justify-center"
@@ -303,12 +282,11 @@ export function SpriteFrameCell({
               boxShadow: '0 1px 4px rgba(0,0,0,0.4)',
             }}
           >
-            Excluded
+            已排除
           </span>
         </div>
       )}
 
-      {/* Frame number badge */}
       <div
         className="pointer-events-none absolute left-1 top-1 rounded px-1 py-px font-mono text-[9px]"
         style={{
@@ -320,7 +298,6 @@ export function SpriteFrameCell({
         {frame.index + 1}
       </div>
 
-      {/* Toggle affordance (eye) — appears on hover; always visible when excluded */}
       {interactive && (
         <div
           className={`pointer-events-none absolute right-1 top-1 rounded p-0.5 transition-opacity ${
@@ -338,7 +315,6 @@ export function SpriteFrameCell({
     </div>
   )
 }
-
 
 export function SpriteStudio({
   sheet,
@@ -404,11 +380,8 @@ export function SpriteStudio({
   const activeCount = sheet.frames.filter((f) => !!f.imageUrl && !f.disabled).length
   const excludedCount = filledCount - activeCount
   const hasAny = filledCount > 0
-  // With an uploaded character the prompt is optional (identity comes from the
-  // image), so generation is allowed even with an empty prompt.
   const canGenerate = !!prompt.trim() || !!anchor?.uploaded
 
-  // Auto-resume playback whenever a fresh generation arrives.
   useEffect(() => {
     if (hasAny) setPlaying(true)
   }, [hasAny, sheet.anim, sheet.gridSheetUrl])
@@ -418,20 +391,16 @@ export function SpriteStudio({
       <div className="flex items-center justify-center gap-2 text-[12px]">
         <Icons.Play size={12} className="text-[color:var(--accent)]" />
         <span style={{ color: 'var(--text-secondary)' }}>
-          Sprite mode — pick a body plan, then an animation. Pass 1 generates a
-          character anchor; Pass 2 paints all 8 keyframes onto a deterministic
-          pose map. Re-use the same character across multiple animations.
+          精灵模式：先选体型，再选动作。第 1 步生成角色锚点，第 2 步把 8 个关键帧绘制到固定姿势图上。同一个角色可以复用到多个动作里。
         </span>
       </div>
 
-      {/* Body-plan picker — chip strip. Switching plan swaps the pose rig, the
-          available animations, and the starter presets. */}
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         <span
           className="mr-1 text-[11px] font-medium uppercase tracking-wider"
           style={{ color: 'var(--text-muted)' }}
         >
-          Body plan
+          体型方案
         </span>
         {BODY_PLAN_ORDER.map((planId) => {
           const plan = BODY_PLANS[planId]
@@ -458,7 +427,6 @@ export function SpriteStudio({
         })}
       </div>
 
-      {/* Animation type picker — chip strip (scoped to the current body plan) */}
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         {BODY_PLANS[bodyPlan].anims.map((animType) => {
           const animSpec = SPRITE_ANIMATIONS[animType]
@@ -478,18 +446,14 @@ export function SpriteStudio({
                 cursor: generating ? 'not-allowed' : 'pointer',
                 opacity: generating ? 0.5 : 1,
               }}
-              title={
-                hasSaved
-                  ? `${animSpec.hint} · saved animation — click to view`
-                  : animSpec.hint
-              }
+              title={hasSaved ? `${animSpec.hint} · 已生成，点击查看` : animSpec.hint}
             >
               {animSpec.label}
               {hasSaved && (
                 <span
                   className="inline-block h-1.5 w-1.5 rounded-full"
                   style={{ background: 'var(--accent)' }}
-                  aria-label="has saved animation"
+                  aria-label="该动作已生成"
                 />
               )}
             </button>
@@ -497,16 +461,11 @@ export function SpriteStudio({
         })}
       </div>
 
-      {/* Action bar */}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {generating ? (
-          <button
-            onClick={onStop}
-            className="btn btn-danger"
-            title="Stop the current generation"
-          >
+          <button onClick={onStop} className="btn btn-danger" title="停止当前生成">
             <Icons.Stop size={14} />
-            Stop
+            停止
           </button>
         ) : (
           <button
@@ -515,16 +474,12 @@ export function SpriteStudio({
             className="btn btn-primary"
             title={
               anchor
-                ? `Generate the ${spec.label.toLowerCase()} sheet for the existing character (skips the anchor pass — faster)`
-                : `Two-pass generation: lock character (Pass 1) + paint ${spec.label.toLowerCase()} sheet (Pass 2)`
+                ? `基于现有角色生成${spec.label}精灵表（跳过锚点步骤，更快）`
+                : `两阶段生成：先锁定角色（第 1 步），再绘制${spec.label}精灵表（第 2 步）`
             }
           >
             <Icons.Sparkle size={14} />
-            {anchor
-              ? hasAny
-                ? `Re-roll ${spec.label.toLowerCase()}`
-                : `Generate ${spec.label.toLowerCase()}`
-              : `Lock character + ${spec.label.toLowerCase()}`}
+            {anchor ? (hasAny ? `重生成${spec.label}` : `生成${spec.label}`) : `锁定角色 + ${spec.label}`}
           </button>
         )}
         {anchor && !generating && (
@@ -532,26 +487,26 @@ export function SpriteStudio({
             onClick={onRerollCharacter}
             disabled={!prompt.trim()}
             className="btn btn-secondary"
-            title="Discard the current character and re-roll a fresh anchor + sheet"
+            title="丢弃当前角色，并重新生成新的锚点和精灵表"
           >
             <Icons.Refresh size={14} />
-            Re-roll character
+            重生角色
           </button>
         )}
         <button
           onClick={onDownloadSheet}
           disabled={!hasAny || generating}
           className="btn btn-secondary"
-          title="Export grid sheet + horizontal strip + JSON manifest"
+          title="导出网格图、横向条带图和 JSON 清单"
         >
           <Icons.Download size={14} />
-          Sheets + manifest
+          图表 + 清单
         </button>
         <button
           onClick={onDownloadZip}
           disabled={!hasAny || generating}
           className="btn btn-ghost"
-          title="Export individual frame PNGs + grid sheet + strip + manifest as a ZIP"
+          title="导出独立帧 PNG、网格图、条带图和清单 ZIP"
         >
           <Icons.Layers size={14} />
           ZIP
@@ -560,10 +515,10 @@ export function SpriteStudio({
           onClick={onClear}
           disabled={(!hasAny && !anchor) || generating}
           className="btn btn-ghost"
-          title="Clear frames, character anchor, and prompt"
+          title="清空帧、角色锚点和提示词"
         >
           <Icons.Trash size={14} />
-          Clear
+          清空
         </button>
         <div
           className="rounded-full border px-2.5 py-1 font-mono text-[11px]"
@@ -573,13 +528,11 @@ export function SpriteStudio({
             color: hasAny ? 'var(--text-secondary)' : 'var(--text-muted)',
           }}
         >
-          {filledCount}/{SPRITE_FRAME_COUNT} frames
+          {filledCount}/{SPRITE_FRAME_COUNT} 帧
           {progressMessage ? ` · ${progressMessage}` : ''}
         </div>
       </div>
 
-      {/* Two-column body: compact live-player rail on the left, frame grid +
-          controls on the right (which carries most of the content). */}
       <div className="grid w-full flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
         <div className="flex flex-col gap-3">
           <SpriteAnimationPlayer
@@ -591,7 +544,6 @@ export function SpriteStudio({
             anchorImageUrl={anchor?.imageUrl ?? null}
             anchorUploaded={anchor?.uploaded}
           />
-          {/* FPS slider */}
           <div
             className="flex items-center gap-2 rounded-[var(--radius-md)] px-3 py-2"
             style={{
@@ -612,7 +564,7 @@ export function SpriteStudio({
               value={fps}
               onChange={(e) => setFps(Number(e.target.value))}
               className="parallax-slider flex-1"
-              aria-label="Playback FPS"
+              aria-label="播放 FPS"
             />
             <span
               className="w-9 text-right font-mono text-[12px]"
@@ -628,12 +580,12 @@ export function SpriteStudio({
             className="flex items-center justify-between text-[11px] font-medium uppercase tracking-wider"
             style={{ color: 'var(--text-muted)' }}
           >
-            <span>Frame sheet (4×2)</span>
+            <span>帧表（4×2）</span>
             <span
               className="font-mono normal-case tracking-normal"
               style={{ color: 'var(--text-muted)' }}
             >
-              {SPRITE_SHEET_W}×{SPRITE_SHEET_H} export
+              {SPRITE_SHEET_W}×{SPRITE_SHEET_H} 导出
             </span>
           </div>
           <div
@@ -654,243 +606,194 @@ export function SpriteStudio({
               />
             ))}
           </div>
-          <div
-            className="text-[11px]"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            Click a frame to exclude it from the animation and all exports;
-            click again to bring it back.
+          <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            点击某一帧可将其从动画和所有导出中排除；再次点击可恢复。
             {excludedCount > 0 && (
               <span style={{ color: 'var(--danger, #e5484d)' }}>
                 {' '}
-                {excludedCount} excluded · {activeCount} active.
+                已排除 {excludedCount} 帧 · 生效中 {activeCount} 帧。
               </span>
             )}{' '}
-            Row-major reading order: top-left is frame 1, top-right is
-            frame 4, bottom-left is frame 5.
+            按行读取顺序：左上是第 1 帧，右上是第 4 帧，左下是第 5 帧。
           </div>
 
-          {/* Command rail — lives under the sheet column so the layout reads
-              balanced against the tall player on the left: character (upload /
-              presets) + prompt. The shared scene brief from Parallax/Tile mode
-              is still forwarded to the API for palette continuity, but isn't
-              surfaced here to keep the sprite flow focused. */}
           <div className="mt-1 flex w-full flex-col gap-2">
-        {/* Character section: upload your own OR pick a starter */}
-        <div className="flex flex-col gap-2.5">
-          <label
-            className="text-[11px] font-medium uppercase tracking-wider"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            Character
-          </label>
-
-          {/* Upload drop-zone — drag & drop or click. Primary path for users
-              who already have a character asset. */}
-          <input
-            ref={uploadInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) onUploadCharacter(file)
-              e.target.value = ''
-            }}
-          />
-          <button
-            type="button"
-            onClick={() => !generating && uploadInputRef.current?.click()}
-            disabled={generating}
-            onDragOver={(e) => {
-              if (generating) return
-              e.preventDefault()
-              setDragOver(true)
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragOver(false)
-              if (generating) return
-              const file = e.dataTransfer.files?.[0]
-              if (file) onUploadCharacter(file)
-            }}
-            className="group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3.5 py-3 text-left transition-colors"
-            style={{
-              border: `1.5px dashed ${
-                dragOver ? 'var(--accent)' : 'var(--border-strong)'
-              }`,
-              background: dragOver ? 'var(--accent-bg)' : 'var(--bg-elev)',
-              cursor: generating ? 'not-allowed' : 'pointer',
-              opacity: generating ? 0.5 : 1,
-            }}
-            title="Upload your own character image and animate it instead of generating one"
-          >
-            <span
-              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-colors"
-              style={{
-                background: dragOver ? 'var(--accent)' : 'var(--bg)',
-                color: dragOver ? '#fff' : 'var(--accent)',
-                border: '1px solid var(--border)',
-              }}
-            >
-              <Icons.Upload size={15} />
-            </span>
-            <span className="flex min-w-0 flex-col">
-              <span
-                className="text-[13px] font-medium"
-                style={{ color: 'var(--text)' }}
-              >
-                {anchor?.uploaded
-                  ? 'Replace uploaded character'
-                  : 'Upload your own character'}
-              </span>
-              <span
-                className="text-[11px]"
+            <div className="flex flex-col gap-2.5">
+              <label
+                className="text-[11px] font-medium uppercase tracking-wider"
                 style={{ color: 'var(--text-muted)' }}
               >
-                Drag &amp; drop or click to browse · transparent PNG works best
-              </span>
-            </span>
-          </button>
+                角色
+              </label>
 
-          {/* Remove uploaded character — lets the user drop the upload and go
-              back to a starter preset or their own prompt. */}
-          {anchor?.uploaded && (
-            <button
-              type="button"
-              onClick={onRemoveUploadedCharacter}
-              disabled={generating}
-              className="inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors"
-              style={{
-                border: '1px solid var(--border)',
-                background: 'var(--bg-elev)',
-                color: 'var(--danger, #e5484d)',
-                cursor: generating ? 'not-allowed' : 'pointer',
-                opacity: generating ? 0.5 : 1,
-              }}
-              title="Remove the uploaded character and use a prompt instead"
-            >
-              <Icons.Trash size={12} />
-              Remove uploaded character
-            </button>
-          )}
-
-          {/* Divider */}
-          <div className="flex items-center gap-2">
-            <span
-              className="h-px flex-1"
-              style={{ background: 'var(--border)' }}
-            />
-            <span
-              className="text-[10px] font-medium uppercase tracking-wider"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              or pick a starter
-            </span>
-            <span
-              className="h-px flex-1"
-              style={{ background: 'var(--border)' }}
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-1.5">
-            {BODY_PLANS[bodyPlan].presets.map((preset) => {
-              const active = prompt.trim() === preset.prompt
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => setPrompt(preset.prompt)}
-                  disabled={generating}
-                  className="rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors"
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) onUploadCharacter(file)
+                  e.target.value = ''
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => !generating && uploadInputRef.current?.click()}
+                disabled={generating}
+                onDragOver={(e) => {
+                  if (generating) return
+                  e.preventDefault()
+                  setDragOver(true)
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setDragOver(false)
+                  if (generating) return
+                  const file = e.dataTransfer.files?.[0]
+                  if (file) onUploadCharacter(file)
+                }}
+                className="group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3.5 py-3 text-left transition-colors"
+                style={{
+                  border: `1.5px dashed ${dragOver ? 'var(--accent)' : 'var(--border-strong)'}`,
+                  background: dragOver ? 'var(--accent-bg)' : 'var(--bg-elev)',
+                  cursor: generating ? 'not-allowed' : 'pointer',
+                  opacity: generating ? 0.5 : 1,
+                }}
+                title="上传你自己的角色图像，并直接为它生成动画"
+              >
+                <span
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-colors"
                   style={{
-                    border: `1px solid ${
-                      active ? 'var(--accent)' : 'var(--border)'
-                    }`,
-                    background: active ? 'var(--accent-bg)' : 'var(--bg-elev)',
-                    color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                    background: dragOver ? 'var(--accent)' : 'var(--bg)',
+                    color: dragOver ? '#fff' : 'var(--accent)',
+                    border: '1px solid var(--border)',
+                  }}
+                >
+                  <Icons.Upload size={15} />
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="text-[13px] font-medium" style={{ color: 'var(--text)' }}>
+                    {anchor?.uploaded ? '替换已上传角色' : '上传自己的角色'}
+                  </span>
+                  <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                    拖拽到这里，或点击选择文件 · 透明 PNG 效果最好
+                  </span>
+                </span>
+              </button>
+
+              {anchor?.uploaded && (
+                <button
+                  type="button"
+                  onClick={onRemoveUploadedCharacter}
+                  disabled={generating}
+                  className="inline-flex items-center gap-1.5 self-start rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors"
+                  style={{
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-elev)',
+                    color: 'var(--danger, #e5484d)',
                     cursor: generating ? 'not-allowed' : 'pointer',
                     opacity: generating ? 0.5 : 1,
                   }}
-                  title={preset.prompt}
+                  title="移除已上传角色，改用文字提示词"
                 >
-                  {preset.label}
+                  <Icons.Trash size={12} />
+                  移除已上传角色
                 </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div
-          className="flex w-full items-stretch gap-2 rounded-[var(--radius-lg)] p-1.5"
-          style={{
-            background: 'var(--bg-elev)',
-            border: '1px solid var(--border-strong)',
-            boxShadow: '0 12px 32px -12px rgba(0,0,0,0.6)',
-          }}
-        >
-          <input
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            disabled={generating}
-            onKeyDown={(e) => {
-              if (
-                e.key === 'Enter' &&
-                !e.shiftKey &&
-                canGenerate &&
-                !generating
-              ) {
-                e.preventDefault()
-                onGenerate()
-              }
-            }}
-            placeholder={
-              anchor?.uploaded
-                ? 'Optional: describe the character to refine results'
-                : 'Describe the character — or pick a starter above'
-            }
-            className="flex-1 bg-transparent px-3 py-2.5 text-[14px] focus:outline-none"
-            style={{ color: 'var(--text)' }}
-          />
-          <div
-            className="hidden items-center sm:flex"
-            style={{ borderLeft: '1px solid var(--border)' }}
-          >
-            <select
-              value={artStyle}
-              onChange={(e) => setArtStyle(e.target.value)}
-              disabled={generating}
-              className="select-styled cursor-pointer border-0 bg-transparent py-2 pl-3 pr-7 text-[13px] focus:outline-none"
-              style={{ color: 'var(--text-secondary)' }}
-              title="Art style for the sprite sheet"
-            >
-              {ART_STYLE_GROUPS.map((group) =>
-                group.options.length === 1 && group.label === 'Match original' ? (
-                  <option key={group.options[0].value} value={group.options[0].value}>
-                    {group.options[0].label}
-                  </option>
-                ) : (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.options.map((o) => (
-                      <option key={o.value} value={o.value}>
-                        {o.label}
-                      </option>
-                    ))}
-                  </optgroup>
-                )
               )}
-            </select>
+
+              <div className="flex items-center gap-2">
+                <span className="h-px flex-1" style={{ background: 'var(--border)' }} />
+                <span
+                  className="text-[10px] font-medium uppercase tracking-wider"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  或选择一个预设
+                </span>
+                <span className="h-px flex-1" style={{ background: 'var(--border)' }} />
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {BODY_PLANS[bodyPlan].presets.map((preset) => {
+                  const active = prompt.trim() === preset.prompt
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      onClick={() => setPrompt(preset.prompt)}
+                      disabled={generating}
+                      className="rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors"
+                      style={{
+                        border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                        background: active ? 'var(--accent-bg)' : 'var(--bg-elev)',
+                        color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                        cursor: generating ? 'not-allowed' : 'pointer',
+                        opacity: generating ? 0.5 : 1,
+                      }}
+                      title={preset.prompt}
+                    >
+                      {preset.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div
+              className="flex w-full items-stretch gap-2 rounded-[var(--radius-lg)] p-1.5"
+              style={{
+                background: 'var(--bg-elev)',
+                border: '1px solid var(--border-strong)',
+                boxShadow: '0 12px 32px -12px rgba(0,0,0,0.6)',
+              }}
+            >
+              <input
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                disabled={generating}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey && canGenerate && !generating) {
+                    e.preventDefault()
+                    onGenerate()
+                  }
+                }}
+                placeholder={
+                  anchor?.uploaded ? '可选：补充描述角色，细化结果' : '描述角色，或直接选择上方预设'
+                }
+                className="flex-1 bg-transparent px-3 py-2.5 text-[14px] focus:outline-none"
+                style={{ color: 'var(--text)' }}
+              />
+              <div className="hidden items-center sm:flex" style={{ borderLeft: '1px solid var(--border)' }}>
+                <select
+                  value={artStyle}
+                  onChange={(e) => setArtStyle(e.target.value)}
+                  disabled={generating}
+                  className="select-styled cursor-pointer border-0 bg-transparent py-2 pl-3 pr-7 text-[13px] focus:outline-none"
+                  style={{ color: 'var(--text-secondary)' }}
+                  title="精灵表的美术风格"
+                >
+                  {ART_STYLE_GROUPS.map((group) =>
+                    group.options.length === 1 && group.label === 'Match original' ? (
+                      <option key={group.options[0].value} value={group.options[0].value}>
+                        {group.options[0].label}
+                      </option>
+                    ) : (
+                      <optgroup key={group.label} label={group.label}>
+                        {group.options.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )
+                  )}
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
         </div>
       </div>
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Empty state — drop zone for upload + generate link
-// ─────────────────────────────────────────────────────────────────────────────
-

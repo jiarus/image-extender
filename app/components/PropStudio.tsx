@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Icons } from '@/app/components/icons'
 import { ART_STYLE_GROUPS } from '@/app/lib/artStyles'
@@ -72,7 +72,7 @@ export function PropItemCell({
               color: 'var(--accent)',
               backdropFilter: 'blur(4px)',
             }}
-            title="Re-roll this prop — a new decoration matched to the rest of the set"
+            title="重生该素材（与当前素材库风格对齐）"
           >
             <Icons.Sparkle size={11} />
           </button>
@@ -85,7 +85,7 @@ export function PropItemCell({
               color: 'var(--danger, #ff6b6b)',
               backdropFilter: 'blur(4px)',
             }}
-            title="Delete this prop from the library"
+            title="从素材库删除该素材"
           >
             <Icons.Trash size={11} />
           </button>
@@ -95,12 +95,12 @@ export function PropItemCell({
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PropStudio — an OPEN-ENDED decoration library. Each "add more" press paints a
+// 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// PropStudio 鈥?an OPEN-ENDED decoration library. Each "add more" press paints a
 // fresh batch of decorations (the model invents them) and appends them to a
 // growing gallery; existing props are never regenerated. Per-prop re-roll +
 // delete let the user curate. Export packs the whole library into one atlas.
-// ─────────────────────────────────────────────────────────────────────────────
+// 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
 export function PropStudio({
   items,
@@ -149,19 +149,17 @@ export function PropStudio({
       <div className="flex items-center justify-center gap-2 text-center text-[12px]">
         <Icons.Sprout size={14} className="text-[color:var(--accent)]" />
         <span style={{ color: 'var(--text-secondary)' }}>
-          Props mode — a growing library of transparent decorations to scatter
-          on top of your tile map (the way Hollow Knight layers detail over its
-          geometry). Each press paints {batchSize} new props the model invents
-          for your biome; keep adding for an endless set.
+          装饰模式：持续扩展的透明装饰素材库，可叠加在地块之上。每次点击会按你的场景风格新增
+          {batchSize} 个装饰素材，可不断追加扩充。
         </span>
       </div>
 
       {/* Action bar */}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {generating ? (
-          <button onClick={onStop} className="btn btn-danger" title="Stop the current generation">
+          <button onClick={onStop} className="btn btn-danger" title="停止当前生成">
             <Icons.Stop size={14} />
-            Stop
+            停止
           </button>
         ) : (
           <button
@@ -170,28 +168,28 @@ export function PropStudio({
             className="btn btn-primary"
             title={
               hasAny
-                ? `Paint ${batchSize} more decorations and add them to the library`
-                : `Paint your first ${batchSize} decorations`
+                ? `再添加 ${batchSize} 个装饰素材`
+                : `生成 ${batchSize} 个装饰`
             }
           >
             <Icons.Plus size={14} />
-            {hasAny ? `Add ${batchSize} more` : `Generate ${batchSize} props`}
+            {hasAny ? `再添加 ${batchSize} 个` : `生成 ${batchSize} 个装饰`}
           </button>
         )}
         <button
           onClick={onDownloadSheet}
           disabled={!hasAny || generating}
           className="btn btn-secondary"
-          title="Export the packed transparent atlas PNG with a JSON manifest"
+          title="导出透明图集 PNG 和 JSON 清单"
         >
           <Icons.Download size={14} />
-          Atlas + manifest
+          图集 + 清单
         </button>
         <button
           onClick={onDownloadZip}
           disabled={!hasAny || generating}
           className="btn btn-ghost"
-          title="Export individual transparent PNGs + atlas + manifest as a ZIP"
+          title="导出独立透明 PNG、图集和清单（ZIP）"
         >
           <Icons.Layers size={14} />
           ZIP
@@ -200,10 +198,10 @@ export function PropStudio({
           onClick={onClearAll}
           disabled={!hasAny || generating}
           className="btn btn-ghost"
-          title="Clear the whole library and start over"
+          title="清空整个素材库并重新开始"
         >
           <Icons.Trash size={14} />
-          Clear
+          清空
         </button>
         <div
           className="rounded-full border px-2.5 py-1 font-mono text-[11px]"
@@ -213,8 +211,7 @@ export function PropStudio({
             color: hasAny ? 'var(--text-secondary)' : 'var(--text-muted)',
           }}
         >
-          {filledCount} prop{filledCount === 1 ? '' : 's'}
-          {progressMessage ? ` · ${progressMessage}` : ''}
+          {filledCount} 个素材{progressMessage ? ` · ${progressMessage}` : ''}
         </div>
       </div>
 
@@ -224,7 +221,7 @@ export function PropStudio({
           className="text-[11px] font-medium uppercase tracking-wider"
           style={{ color: 'var(--text-muted)' }}
         >
-          Decoration library
+          装饰素材库
         </div>
         {items.length === 0 ? (
           <div
@@ -236,8 +233,8 @@ export function PropStudio({
                 'repeating-linear-gradient(45deg, transparent 0 8px, rgba(255,255,255,0.015) 8px 16px)',
             }}
           >
-            Pick a biome below and press “Generate {batchSize} props” to start
-            your decoration library. Keep pressing “Add more” to grow it.
+            先在下方选择场景预设，再点击“生成 {batchSize} 个装饰”开始构建素材库；
+            之后可持续点击“再添加”扩充。
           </div>
         ) : (
           <div
@@ -260,9 +257,8 @@ export function PropStudio({
           </div>
         )}
         <div className="mx-auto max-w-4xl text-[11px]" style={{ color: 'var(--text-muted)' }}>
-          Every prop is exported on transparency. Hover a prop to re-roll or
-          delete it. New batches are style-matched to what you already have, so
-          the library stays cohesive as it grows.
+          所有素材都以透明背景导出。悬停可重生或删除。新批次会与已有素材自动对齐风格，
+          保证素材库越扩越统一。
         </div>
       </div>
 
@@ -281,7 +277,7 @@ export function PropStudio({
               className="text-[11px] font-medium uppercase tracking-wider"
               style={{ color: 'var(--text-muted)' }}
             >
-              Scene direction
+              场景方向
             </label>
             {sceneBriefLoading && (
               <span
@@ -289,7 +285,7 @@ export function PropStudio({
                 style={{ color: 'var(--accent)' }}
               >
                 <Icons.Spinner size={10} />
-                Updating…
+                更新中…
               </span>
             )}
           </div>
@@ -297,7 +293,7 @@ export function PropStudio({
             value={sceneBrief}
             onChange={(e) => setSceneBrief(e.target.value)}
             disabled={generating || sceneBriefLoading}
-            placeholder="Optional shared art direction. Reused from your parallax / tile work so the props match the same palette and lighting."
+            placeholder="可选的共享美术方向。会沿用你的视差或地块项目设定，让装饰素材保持一致的配色和光照。"
             rows={2}
             className="field w-full resize-none text-[13px] leading-relaxed"
           />
@@ -308,7 +304,7 @@ export function PropStudio({
             className="text-[11px] font-medium uppercase tracking-wider"
             style={{ color: 'var(--text-muted)' }}
           >
-            Quick start
+            快速开始
           </label>
           <div className="flex flex-wrap gap-1.5">
             {PROP_PRESETS.map((preset) => {
@@ -354,7 +350,7 @@ export function PropStudio({
                 onAddMore()
               }
             }}
-            placeholder="Describe the biome / palette — or pick a quick start above"
+            placeholder="描述场景/配色，或直接选择上方预设"
             className="flex-1 bg-transparent px-3 py-2.5 text-[14px] focus:outline-none"
             style={{ color: 'var(--text)' }}
           />
@@ -365,7 +361,7 @@ export function PropStudio({
               disabled={generating}
               className="select-styled cursor-pointer border-0 bg-transparent py-2 pl-3 pr-7 text-[13px] focus:outline-none"
               style={{ color: 'var(--text-secondary)' }}
-              title="Art style for the props"
+              title="装饰素材美术风格"
             >
               {ART_STYLE_GROUPS.map((group) =>
                 group.options.length === 1 && group.label === 'Match original' ? (
@@ -390,16 +386,17 @@ export function PropStudio({
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SpriteStudio — generate a full character animation as ONE AI call so palette,
+// 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+// SpriteStudio 鈥?generate a full character animation as ONE AI call so palette,
 // outfit, proportions, and lighting stay locked across all 8 keyframes. Layout
-// is a fixed 4×2 grid that we slice into individual frames after chroma-keying
-// magenta → alpha. A live animation player shows the result playing back at
+// is a fixed 4脳2 grid that we slice into individual frames after chroma-keying
+// magenta 鈫?alpha. A live animation player shows the result playing back at
 // the animation's native FPS so the designer can verify the cycle before export.
-// ─────────────────────────────────────────────────────────────────────────────
+// 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
 /**
- * Animation player — composites the current sprite-sheet frames into an
+ * Animation player 鈥?composites the current sprite-sheet frames into an
  * actual playing animation at the user-controlled FPS. Skips empty frames
  * (lets the studio render partial sheets gracefully during generation).
  */
+

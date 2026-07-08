@@ -60,7 +60,7 @@ export interface SpriteAnimSpec {
 export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   idle: {
     type: 'idle',
-    label: 'Idle',
+    label: '待机',
     defaultFps: 6,
     loop: true,
     hint: 'Subtle breathing loop · 8 frames @ 6 FPS',
@@ -69,7 +69,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   walk: {
     type: 'walk',
-    label: 'Walk',
+    label: '行走',
     defaultFps: 12,
     loop: true,
     hint: 'Classic 8-frame walk cycle @ 12 FPS',
@@ -78,7 +78,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   run: {
     type: 'run',
-    label: 'Run',
+    label: '奔跑',
     defaultFps: 14,
     loop: true,
     hint: 'Energetic 8-frame run cycle @ 14 FPS',
@@ -87,7 +87,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   jump: {
     type: 'jump',
-    label: 'Jump',
+    label: '跳跃',
     defaultFps: 10,
     loop: false,
     hint: 'Crouch → launch → peak → land · 8 frames @ 10 FPS',
@@ -96,7 +96,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   attack: {
     type: 'attack',
-    label: 'Attack',
+    label: '攻击',
     defaultFps: 12,
     loop: false,
     hint: 'Wind-up → strike → recover · 8 frames @ 12 FPS',
@@ -105,7 +105,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   hurt: {
     type: 'hurt',
-    label: 'Hurt',
+    label: '受伤',
     defaultFps: 8,
     loop: false,
     hint: 'Take damage recoil · 8 frames @ 8 FPS',
@@ -114,7 +114,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   death: {
     type: 'death',
-    label: 'Death',
+    label: '死亡',
     defaultFps: 10,
     loop: false,
     hint: 'Collapse to ground · 8 frames @ 10 FPS',
@@ -125,7 +125,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   // ── Quadruped extras ──────────────────────────────────────────────────────
   pounce: {
     type: 'pounce',
-    label: 'Pounce',
+    label: '扑击',
     defaultFps: 12,
     loop: false,
     hint: 'Crouch → leap → strike · 8 frames @ 12 FPS',
@@ -134,7 +134,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   sleep: {
     type: 'sleep',
-    label: 'Sleep',
+    label: '睡眠',
     defaultFps: 4,
     loop: true,
     hint: 'Curled resting breath loop · 8 frames @ 4 FPS',
@@ -145,7 +145,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   // ── Serpent / fish ────────────────────────────────────────────────────────
   slither: {
     type: 'slither',
-    label: 'Slither',
+    label: '游动',
     defaultFps: 12,
     loop: true,
     hint: 'Traveling-wave glide loop · 8 frames @ 12 FPS',
@@ -154,7 +154,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   strike: {
     type: 'strike',
-    label: 'Strike',
+    label: '突袭',
     defaultFps: 14,
     loop: false,
     hint: 'Coil → lunge → recoil · 8 frames @ 14 FPS',
@@ -163,7 +163,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   coil: {
     type: 'coil',
-    label: 'Coil',
+    label: '盘绕',
     defaultFps: 10,
     loop: false,
     hint: 'Settle into a tight coil · 8 frames @ 10 FPS',
@@ -174,7 +174,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   // ── Flyer / bird ──────────────────────────────────────────────────────────
   flap: {
     type: 'flap',
-    label: 'Fly',
+    label: '飞行',
     defaultFps: 12,
     loop: true,
     hint: 'Powered wing-flap loop · 8 frames @ 12 FPS',
@@ -183,7 +183,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   glide: {
     type: 'glide',
-    label: 'Glide',
+    label: '滑翔',
     defaultFps: 8,
     loop: true,
     hint: 'Wings held, gentle sway · 8 frames @ 8 FPS',
@@ -192,7 +192,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   dive: {
     type: 'dive',
-    label: 'Dive',
+    label: '俯冲',
     defaultFps: 14,
     loop: false,
     hint: 'Wings swept, plunge down · 8 frames @ 14 FPS',
@@ -203,7 +203,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   // ── Blob / amorphous ──────────────────────────────────────────────────────
   hop: {
     type: 'hop',
-    label: 'Hop',
+    label: '跳动',
     defaultFps: 10,
     loop: true,
     hint: 'Squash → launch → land loop · 8 frames @ 10 FPS',
@@ -212,7 +212,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   bounce: {
     type: 'bounce',
-    label: 'Bounce',
+    label: '弹跳',
     defaultFps: 12,
     loop: true,
     hint: 'Energetic squash-and-stretch loop · 8 frames @ 12 FPS',
@@ -221,7 +221,7 @@ export const SPRITE_ANIMATIONS: Record<SpriteAnimType, SpriteAnimSpec> = {
   },
   lunge: {
     type: 'lunge',
-    label: 'Lunge',
+    label: '猛冲',
     defaultFps: 12,
     loop: false,
     hint: 'Stretch forward attack · 8 frames @ 12 FPS',
@@ -301,61 +301,61 @@ export interface SpritePreset {
 export const SPRITE_CHARACTER_PRESETS: SpritePreset[] = [
   {
     id: 'pixel-knight',
-    label: 'Pixel knight',
+    label: '像素骑士',
     prompt:
       'Pixel-art knight in plate armor with a silver helmet, blue tabard, sword in right hand, small round shield in left hand. Crisp 16-bit retro pixel art, limited palette, clean outlines.',
   },
   {
     id: 'ninja',
-    label: 'Shadow ninja',
+    label: '暗影忍者',
     prompt:
       'Side-view ninja in a dark indigo gi with a black mask covering the lower face, white headband, lean athletic build, katana sheathed at the hip. Crisp anime-game pixel art.',
   },
   {
     id: 'wizard',
-    label: 'Robed wizard',
+    label: '长袍法师',
     prompt:
       'Robed wizard in flowing deep-purple robes with golden trim, long white beard, pointed star-studded hat, wooden staff topped with a glowing blue crystal in the right hand.',
   },
   {
     id: 'archer',
-    label: 'Forest archer',
+    label: '森林弓手',
     prompt:
       'Light forest archer in green leather armor with a hood, brown boots, leather quiver on the back full of arrows, recurve bow in the left hand. Agile build, side-view.',
   },
   {
     id: 'rogue',
-    label: 'Hooded rogue',
+    label: '兜帽盗贼',
     prompt:
       'Lean rogue in a dark hooded cloak, leather chest piece, twin daggers (one in each hand), face mostly shadowed under the hood. Stealthy posture.',
   },
   {
     id: 'mech-robot',
-    label: 'Mech robot',
+    label: '机甲机器人',
     prompt:
       'Chrome mech battle-robot, humanoid proportions, glowing cyan eye visor, articulated joint plates, antenna on the head, no weapon (unarmed combat). Sci-fi clean look.',
   },
   {
     id: 'slime',
-    label: 'Slime humanoid',
+    label: '史莱姆人形',
     prompt:
       'Upright humanoid slime creature with a clear head, torso, two arms and two legs, translucent green jelly body, two big white eyes with small black pupils, small mouth. Bipedal stance, cute RPG enemy style.',
   },
   {
     id: 'dragon',
-    label: 'Dragonkin warrior',
+    label: '龙裔战士',
     prompt:
       'Bipedal dragonkin warrior, upright humanoid body with two arms and two legs, red scaled skin, horned reptilian head, small leathery wings folded on the back, clawed hands and feet, golden chest plate. Side-view fantasy fighter.',
   },
   {
     id: 'skeleton',
-    label: 'Skeleton warrior',
+    label: '骷髅战士',
     prompt:
       'Skeleton warrior, exposed bone body, tattered grey loincloth, rusty curved scimitar in the right hand, small wooden shield in the left hand, glowing red eye sockets.',
   },
   {
     id: 'villager',
-    label: 'Villager NPC',
+    label: '村民 NPC',
     prompt:
       'Friendly villager peasant, simple linen tunic in muted earth tones, brown trousers, leather belt, no weapon, slight smile. Side-view, NPC character art.',
   },
@@ -363,37 +363,37 @@ export const SPRITE_CHARACTER_PRESETS: SpritePreset[] = [
   // ── Enemies ───────────────────────────────────────────────────────────────
   {
     id: 'goblin',
-    label: 'Goblin grunt',
+    label: '哥布林杂兵',
     prompt:
       'Small hunched goblin, green warty skin, big pointed ears, yellow eyes, ragged brown loincloth, crude jagged dagger in the right hand. Mischievous low-level RPG enemy.',
   },
   {
     id: 'orc-brute',
-    label: 'Orc brute',
+    label: '兽人蛮兵',
     prompt:
       'Hulking orc brute, muscular grey-green skin, lower tusks, leather-and-fur armor straps, heavy two-handed cleaver axe, bald scarred head. Heavy aggressive build.',
   },
   {
     id: 'bat',
-    label: 'Batfolk',
+    label: '蝠人',
     prompt:
       'Upright bipedal batfolk humanoid, two legs and two arms with membranous wing-flaps along the arms, dark purple fur, large pointed ears, glowing red eyes, tiny fangs. Lean agile build, side-view enemy.',
   },
   {
     id: 'mushroom',
-    label: 'Mushroom folk',
+    label: '蘑菇人',
     prompt:
       'Humanoid mushroom-folk, round red cap with white spots as the head, pale stalk-like humanoid body with two arms and two legs, two beady eyes and a grumpy frown. Bipedal forest enemy style.',
   },
   {
     id: 'zombie',
-    label: 'Rotting zombie',
+    label: '腐烂僵尸',
     prompt:
       'Shambling undead zombie, pale green decaying skin, torn bloodstained shirt and trousers, one arm hanging loose, sunken white eyes, slouched posture. Side-view horror enemy.',
   },
   {
     id: 'imp',
-    label: 'Fire imp',
+    label: '火焰小鬼',
     prompt:
       'Small mischievous fire imp, crimson-red skin, tiny horns, bat-like wings, pointed tail, glowing ember eyes, small claws, flickering flames on the shoulders. Agile demon minion.',
   },
@@ -401,37 +401,37 @@ export const SPRITE_CHARACTER_PRESETS: SpritePreset[] = [
   // ── Bosses ────────────────────────────────────────────────────────────────
   {
     id: 'infernal-tyrant',
-    label: 'Infernal tyrant (boss)',
+    label: '炼狱暴君（Boss）',
     prompt:
       'Towering infernal tyrant boss, dark crimson muscular body, massive curved horns, large tattered black wings, glowing molten cracks across the skin, huge flaming greatsword. Imposing, menacing silhouette.',
   },
   {
     id: 'stone-golem',
-    label: 'Stone golem (boss)',
+    label: '石像魔像（Boss）',
     prompt:
       'Massive stone golem boss, body built from cracked grey boulders, glowing blue energy core in the chest, enormous heavy fists, mossy weathered surface, slow and powerful. Bulky towering build.',
   },
   {
     id: 'lich',
-    label: 'Lich king (boss)',
+    label: '巫妖王（Boss）',
     prompt:
       'Undead lich king boss, skeletal frame in a tattered royal purple robe, glowing green eye sockets, ornate golden crown, levitating bone staff topped with a green soul orb. Dark sorcerer aura.',
   },
   {
     id: 'dragon-boss',
-    label: 'Dragon lord (boss)',
+    label: '龙王（Boss）',
     prompt:
       'Towering bipedal dragon lord boss, upright humanoid body with two muscular arms and two legs, obsidian-black scales with red accents, horned draconic head, huge leathery wings spread from the back, glowing orange throat, massive clawed hands. Epic imposing stance.',
   },
   {
     id: 'spider-queen',
-    label: 'Spider queen (boss)',
+    label: '蜘蛛女王（Boss）',
     prompt:
       'Spider queen boss as an upright humanoid (drider-style upper body): two arms and two legs in a bipedal stance, pale humanoid torso, cluster of glowing red eyes, sharp dripping fangs, dark chitin armor plates and bone-spike markings. Menacing arachnid-themed boss.',
   },
   {
     id: 'dark-knight',
-    label: 'Dark knight (boss)',
+    label: '黑骑士（Boss）',
     prompt:
       'Heavy dark knight boss in jagged blackened full plate armor, glowing red slit visor, tattered crimson cape, enormous two-handed greatsword wreathed in dark energy. Towering intimidating stance.',
   },

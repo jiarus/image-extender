@@ -4,6 +4,13 @@ import { Icons } from '@/app/components/icons'
 import { StatusPill } from '@/app/components/TopBar'
 import { Direction } from '@/app/lib/app'
 
+const DIRECTION_LABELS: Record<Direction, string> = {
+  up: '向上',
+  down: '向下',
+  left: '向左',
+  right: '向右',
+}
+
 export function EdgeHandle({
   direction,
   onClick,
@@ -33,8 +40,8 @@ export function EdgeHandle({
     <button
       onClick={() => onClick(direction)}
       disabled={disabled}
-      title={`Extend ${direction}`}
-      aria-label={`Extend ${direction}`}
+      title={`${DIRECTION_LABELS[direction]}扩展`}
+      aria-label={`${DIRECTION_LABELS[direction]}扩展`}
       className={`group absolute z-10 flex h-11 w-11 items-center justify-center rounded-full transition-all duration-200 ${
         active ? 'anim-pulse' : ''
       }`}
@@ -63,11 +70,6 @@ export function EdgeHandle({
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Workspace — image with edge handles, dimensions label, and result actions
-// ─────────────────────────────────────────────────────────────────────────────
-
-
 export function Workspace({
   image,
   dimensions,
@@ -88,19 +90,12 @@ export function Workspace({
   progressMessage?: string | null
   isResult: boolean
   resultMessage?: string
-  /**
-   * Optional cycle-between-variants control rendered next to the dimension
-   * pill. Only shown when the current extension produced more than one
-   * candidate.
-   */
   variantSelector?: React.ReactNode
   resultActions?: React.ReactNode
 }) {
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center px-6 pb-6 pt-2">
-      {/* Image frame */}
       <div className="relative max-h-[calc(100vh-260px)] max-w-[min(1200px,calc(100vw-96px))] anim-fade">
-        {/* Edge glow overlays for the active direction */}
         {activeDirection && (
           <div
             className={`pointer-events-none absolute inset-0 rounded-[var(--radius-lg)] edge-glow-${activeDirection}`}
@@ -123,7 +118,6 @@ export function Workspace({
           />
         </div>
 
-        {/* Edge handles — only when not displaying a result */}
         {!isResult && (
           <>
             <EdgeHandle
@@ -154,7 +148,6 @@ export function Workspace({
         )}
       </div>
 
-      {/* Below-image meta row */}
       <div className="mt-5 flex items-center gap-3 anim-slide-up">
         {dimensions && (
           <div
@@ -174,13 +167,16 @@ export function Workspace({
         )}
         {!isResult && !loading && (
           <span className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-            Click an edge to extend
+            点击图片边缘即可扩展
           </span>
         )}
         {loading && (
           <StatusPill
             status="working"
-            message={progressMessage || (activeDirection ? `Extending ${activeDirection}…` : 'Working…')}
+            message={
+              progressMessage ||
+              (activeDirection ? `${DIRECTION_LABELS[activeDirection]}扩展中…` : '处理中…')
+            }
           />
         )}
       </div>
@@ -191,10 +187,3 @@ export function Workspace({
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MultiLayerPreview — composites every populated parallax layer at its own
-// scroll speed so the user can feel real depth before exporting. Each layer
-// is a stacked div with a `repeat-x` background animated independently.
-// ─────────────────────────────────────────────────────────────────────────────
-

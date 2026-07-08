@@ -4,48 +4,47 @@ export type ModelOption = {
   value: string
   label: string
   hint?: string
-  /**
-   * Max best-of-N attempts for horizontal extensions on this model.
-   * Slow models (GPT-5.4-image-2 takes ~4 min/call) get 1 to avoid
-   * multi-minute blind waits; fast models get 3 for seam-quality picking.
-   */
   maxAttempts: number
-  /** Rough single-call expected duration, shown to the user as guidance. */
   approxSecondsPerCall: number
 }
 
-
 export const MODELS: ModelOption[] = [
+  {
+    value: 'gpt-image-2',
+    label: 'GPT Image 2',
+    hint: '中转别名',
+    maxAttempts: 1,
+    approxSecondsPerCall: 180,
+  },
   {
     value: 'openai/gpt-5.4-image-2',
     label: 'GPT-5.4 Image 2',
-    hint: 'OpenAI · high fidelity · slower',
+    hint: 'OpenAI · 高保真 · 较慢',
     maxAttempts: 1,
     approxSecondsPerCall: 240,
   },
   {
     value: 'google/gemini-3-pro-image-preview',
     label: 'Gemini 3 Pro Image',
-    hint: 'Nano Banana Pro · highest fidelity',
+    hint: 'Nano Banana Pro · 最高保真',
     maxAttempts: 1,
     approxSecondsPerCall: 75,
   },
   {
     value: 'google/gemini-3.1-flash-image-preview',
     label: 'Gemini 3 Flash Image',
-    hint: 'Nano Banana 2 · fast · default',
+    hint: 'Nano Banana 2 · 速度快 · 默认',
     maxAttempts: 3,
     approxSecondsPerCall: 18,
   },
   {
     value: 'google/gemini-2.5-flash-image',
     label: 'Gemini 2.5 Flash Image',
-    hint: 'Nano Banana · stable',
+    hint: 'Nano Banana · 稳定',
     maxAttempts: 3,
     approxSecondsPerCall: 15,
   },
 ]
-
 
 export const DEFAULT_MODEL = 'google/gemini-3.1-flash-image-preview'
 
@@ -58,17 +57,12 @@ export function getModelConfig(value: string): ModelOption {
 }
 
 export function skipsArtDirectorReview(value: string): boolean {
-  return value.toLowerCase().startsWith('openai/gpt-')
+  const normalized = value.toLowerCase()
+  return normalized.startsWith('openai/gpt-') || normalized.startsWith('gpt-')
 }
-
 
 export function maskKey(key: string): string {
   if (!key) return ''
   const tail = key.slice(-4)
   return `${'•'.repeat(Math.max(4, Math.min(20, key.length - 4)))}${tail}`
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Art styles — flat list with optional grouping for the dropdown
-// ─────────────────────────────────────────────────────────────────────────────
-

@@ -4,53 +4,53 @@ import { Mode } from '@/app/lib/app'
 
 export const ART_STYLE_GROUPS: { label: string; options: { value: string; label: string }[] }[] = [
   {
-    label: 'Match original',
-    options: [{ value: 'none', label: 'Match original style' }],
+    label: '保持原图',
+    options: [{ value: 'none', label: '保持原图风格' }],
   },
   {
-    label: 'Photography',
+    label: '摄影',
     options: [
-      { value: 'cinematic', label: 'Cinematic' },
-      { value: 'vintage', label: 'Vintage film' },
-      { value: 'black-white', label: 'Black & white' },
-      { value: 'macro', label: 'Macro' },
+      { value: 'cinematic', label: '电影感' },
+      { value: 'vintage', label: '复古胶片' },
+      { value: 'black-white', label: '黑白' },
+      { value: 'macro', label: '微距' },
     ],
   },
   {
-    label: 'Painting',
+    label: '绘画',
     options: [
-      { value: 'oil-painting', label: 'Oil painting' },
-      { value: 'watercolor', label: 'Watercolor' },
-      { value: 'impressionism', label: 'Impressionism' },
-      { value: 'abstract', label: 'Abstract' },
-      { value: 'pop-art', label: 'Pop art' },
-      { value: 'cubism', label: 'Cubism' },
-      { value: 'minimalist', label: 'Minimalist' },
+      { value: 'oil-painting', label: '油画' },
+      { value: 'watercolor', label: '水彩' },
+      { value: 'impressionism', label: '印象派' },
+      { value: 'abstract', label: '抽象' },
+      { value: 'pop-art', label: '波普艺术' },
+      { value: 'cubism', label: '立体主义' },
+      { value: 'minimalist', label: '极简' },
     ],
   },
   {
-    label: 'Digital',
+    label: '数字艺术',
     options: [
-      { value: 'digital-art', label: 'Digital art' },
+      { value: 'digital-art', label: '数字绘画' },
       { value: 'cyberpunk', label: 'Cyberpunk' },
       { value: 'vaporwave', label: 'Vaporwave' },
-      { value: 'low-poly', label: 'Low poly' },
-      { value: 'pixel-art', label: 'Pixel art' },
-      { value: '3d-render', label: '3D render' },
+      { value: 'low-poly', label: '低多边形' },
+      { value: 'pixel-art', label: '像素艺术' },
+      { value: '3d-render', label: '3D 渲染' },
     ],
   },
   {
-    label: 'Illustration',
+    label: '插画',
     options: [
       { value: 'anime', label: 'Anime' },
-      { value: 'cartoon', label: 'Cartoon' },
-      { value: 'comic-book', label: 'Comic book' },
-      { value: 'sketch', label: 'Pencil sketch' },
-      { value: 'ink', label: 'Ink drawing' },
+      { value: 'cartoon', label: '卡通' },
+      { value: 'comic-book', label: '漫画' },
+      { value: 'sketch', label: '铅笔素描' },
+      { value: 'ink', label: '墨线绘制' },
     ],
   },
   {
-    label: 'Animation studios',
+    label: '动画工作室',
     options: [
       { value: 'studio-ghibli', label: 'Studio Ghibli' },
       { value: 'pixar', label: 'Pixar' },
@@ -65,16 +65,16 @@ export const ART_STYLE_GROUPS: { label: string; options: { value: string; label:
     ],
   },
   {
-    label: 'Fantasy & retro',
+    label: '幻想与复古',
     options: [
-      { value: 'fantasy', label: 'Fantasy' },
-      { value: 'sci-fi', label: 'Sci-fi' },
+      { value: 'fantasy', label: '奇幻' },
+      { value: 'sci-fi', label: '科幻' },
       { value: 'steampunk', label: 'Steampunk' },
-      { value: 'surreal', label: 'Surreal' },
+      { value: 'surreal', label: '超现实' },
       { value: 'art-deco', label: 'Art Deco' },
       { value: 'art-nouveau', label: 'Art Nouveau' },
-      { value: 'retro-80s', label: '80s retro' },
-      { value: 'retro-50s', label: '50s vintage' },
+      { value: 'retro-80s', label: '80 年代复古' },
+      { value: 'retro-50s', label: '50 年代复古' },
     ],
   },
 ]
@@ -85,7 +85,7 @@ export const findStyleLabel = (value: string) => {
     const opt = group.options.find((o) => o.value === value)
     if (opt) return opt.label
   }
-  return 'Match original'
+  return '保持原图'
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

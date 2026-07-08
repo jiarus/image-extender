@@ -16,7 +16,7 @@ export function Logo() {
         <Icons.CornerFrame size={16} />
       </div>
       <div className="flex items-baseline gap-1.5">
-        <span className="text-[15px] font-semibold tracking-tight">Extender</span>
+        <span className="text-[15px] font-semibold tracking-tight">扩图工坊</span>
         <span className="text-[11px] font-mono text-[var(--text-muted)]">v2</span>
       </div>
     </div>
@@ -48,14 +48,14 @@ export function TopBar({
         {hasImage && (
           <button onClick={onNewImage} className="btn btn-ghost">
             <Icons.Plus size={15} />
-            New image
+            新建
           </button>
         )}
         <button
           onClick={onShowSettings}
           className="icon-btn"
-          aria-label="Settings"
-          title="Settings"
+          aria-label="设置"
+          title="设置"
         >
           <Icons.Settings size={17} />
         </button>
@@ -79,11 +79,11 @@ export function ModeToggle({
   setMode: (m: Mode) => void
 }) {
   const tabs: { value: Mode; label: string; Icon: React.FC<IconProps>; hint: string }[] = [
-    { value: 'extender', label: 'Extender', Icon: Icons.CornerFrame, hint: 'Outpaint any image' },
-    { value: 'parallax', label: 'Parallax', Icon: Icons.Mountain, hint: 'Sidescroller backgrounds' },
-    { value: 'tile', label: 'Tiles', Icon: Icons.Layers, hint: 'Seamless tile textures' },
-    { value: 'props', label: 'Props', Icon: Icons.Sprout, hint: 'Scatter decorations' },
-    { value: 'sprite', label: 'Sprite', Icon: Icons.Play, hint: 'Character animations' },
+    { value: 'extender', label: '扩图', Icon: Icons.CornerFrame, hint: '任意方向扩展图片' },
+    { value: 'parallax', label: '视差', Icon: Icons.Mountain, hint: '横版卷轴背景' },
+    { value: 'tile', label: '地块', Icon: Icons.Layers, hint: '无缝贴图与瓦片' },
+    { value: 'props', label: '装饰', Icon: Icons.Sprout, hint: '散布式装饰素材' },
+    { value: 'sprite', label: '精灵', Icon: Icons.Play, hint: '角色动画' },
   ]
   return (
     <div
@@ -93,7 +93,7 @@ export function ModeToggle({
         border: '1px solid var(--border)',
       }}
       role="tablist"
-      aria-label="Workspace mode"
+      aria-label="工作区模式"
     >
       {tabs.map(({ value, label, Icon, hint }) => {
         const active = mode === value

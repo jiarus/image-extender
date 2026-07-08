@@ -40,7 +40,7 @@ export function CommandBar({
               className="text-[11px] font-medium uppercase tracking-wider"
               style={{ color: 'var(--text-muted)' }}
             >
-              Scene direction
+              场景方向
             </label>
             {sceneBriefLoading && (
               <span
@@ -48,7 +48,7 @@ export function CommandBar({
                 style={{ color: 'var(--accent)' }}
               >
                 <Icons.Spinner size={10} />
-                Updating…
+                更新中…
               </span>
             )}
           </div>
@@ -56,7 +56,7 @@ export function CommandBar({
             value={sceneBrief ?? ''}
             onChange={(e) => setSceneBrief(e.target.value)}
             disabled={loading || sceneBriefLoading}
-            placeholder="Shared art direction for all layers — generated from your Near layer prompt. Edit to steer Mid, Far, and Sky."
+            placeholder="所有图层共享的美术方向，会根据 Near 图层的提示词自动生成。你也可以手动修改。"
             rows={2}
             className="field w-full resize-none text-[13px] leading-relaxed"
           />
@@ -75,9 +75,7 @@ export function CommandBar({
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           disabled={loading}
-          placeholder={
-            hint ?? 'Optional: describe what should appear in the new area…'
-          }
+          placeholder={hint ?? '可选：描述新扩展区域里希望出现的内容'}
           className="flex-1 bg-transparent px-3 py-2.5 text-[14px] focus:outline-none"
           style={{ color: 'var(--text)' }}
         />
@@ -92,10 +90,10 @@ export function CommandBar({
             disabled={loading}
             className="select-styled cursor-pointer border-0 bg-transparent py-2 pl-3 pr-7 text-[13px] focus:outline-none"
             style={{ color: 'var(--text-secondary)' }}
-            title="Art style for the extension"
+            title="扩图的美术风格"
           >
             {ART_STYLE_GROUPS.map((group) =>
-              group.options.length === 1 && group.label === 'Match original' ? (
+              group.options.length === 1 && group.label === '保持原图' ? (
                 <option key={group.options[0].value} value={group.options[0].value}>
                   {group.options[0].label}
                 </option>
@@ -115,8 +113,3 @@ export function CommandBar({
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Variant selector — cycle between AI-generated extension candidates
-// ─────────────────────────────────────────────────────────────────────────────
-

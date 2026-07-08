@@ -16,6 +16,9 @@ export function SettingsDrawer({
   onClearApiKey,
   selectedModel,
   setSelectedModel,
+  providerName,
+  usingCustomProvider,
+  hasServerKey,
 }: {
   open: boolean
   onClose: () => void
@@ -27,6 +30,9 @@ export function SettingsDrawer({
   onClearApiKey: () => void
   selectedModel: string
   setSelectedModel: (v: string) => void
+  providerName: string
+  usingCustomProvider: boolean
+  hasServerKey: boolean
 }) {
   useEffect(() => {
     if (!open) return
@@ -56,14 +62,14 @@ export function SettingsDrawer({
           className="flex h-14 shrink-0 items-center justify-between border-b px-5"
           style={{ borderColor: 'var(--border)' }}
         >
-          <h2 className="text-[14px] font-semibold tracking-tight">Settings</h2>
-          <button onClick={onClose} className="icon-btn" aria-label="Close">
+          <h2 className="text-[14px] font-semibold tracking-tight">设置</h2>
+          <button onClick={onClose} className="icon-btn" aria-label="关闭">
             <Icons.X size={16} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5">
-          <Section title="Model">
+          <Section title="模型">
             <div className="space-y-2">
               {MODELS.map((m) => {
                 const active = m.value === selectedModel
@@ -107,7 +113,7 @@ export function SettingsDrawer({
             </div>
           </Section>
 
-          <Section title="OpenRouter key">
+          <Section title="API 密钥">
             {apiKey ? (
               <div
                 className="flex items-center gap-3 rounded-[var(--radius-sm)] p-3"
@@ -123,7 +129,7 @@ export function SettingsDrawer({
                   <Icons.Key size={14} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[12px] font-medium">Key saved locally</div>
+                  <div className="text-[12px] font-medium">已保存在本地</div>
                   <div
                     className="truncate font-mono text-[11px]"
                     style={{ color: 'var(--text-muted)' }}
@@ -134,16 +140,16 @@ export function SettingsDrawer({
                 <button
                   onClick={onEditApiKey}
                   className="icon-btn"
-                  aria-label="Edit key"
-                  title="Edit key"
+                  aria-label="编辑密钥"
+                  title="编辑密钥"
                 >
                   <Icons.Settings size={14} />
                 </button>
                 <button
                   onClick={onClearApiKey}
                   className="icon-btn"
-                  aria-label="Remove key"
-                  title="Remove key"
+                  aria-label="移除密钥"
+                  title="移除密钥"
                 >
                   <Icons.Trash size={14} />
                 </button>
@@ -154,24 +160,32 @@ export function SettingsDrawer({
                 className="btn btn-secondary w-full justify-start"
               >
                 <Icons.Key size={14} />
-                Add OpenRouter key
+                添加 API 密钥
               </button>
             )}
             <p className="mt-2 text-[12px]" style={{ color: 'var(--text-muted)' }}>
-              Stored only in this browser. Get one at{' '}
-              <a
-                href="https://openrouter.ai/keys"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: 'var(--accent)' }}
-              >
-                openrouter.ai/keys
-              </a>
-              .
+              Stored only in this browser.
+              {usingCustomProvider ? (
+                <> Requests go through <code className="font-mono">{providerName}</code>.</>
+              ) : (
+                <>
+                  {' '}For OpenRouter keys, use{' '}
+                  <a
+                    href="https://openrouter.ai/keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    openrouter.ai/keys
+                  </a>
+                  .
+                </>
+              )}
+              {hasServerKey ? ' Server-side fallback is configured.' : ''}
             </p>
           </Section>
 
-          <Section title="Tools">
+          <Section title="工具">
             <button
               onClick={() => {
                 onClose()
@@ -180,23 +194,23 @@ export function SettingsDrawer({
               className="btn btn-secondary w-full justify-start"
             >
               <Icons.Sparkle size={15} />
-              Generate image from scratch
+              从零生成图片
             </button>
             <p className="mt-2 text-[12px]" style={{ color: 'var(--text-muted)' }}>
-              Create a brand-new image from a text description, then extend it.
+              先根据文字生成一张全新图片，再继续扩展。
             </p>
           </Section>
 
-          <Section title="Developer">
+          <Section title="开发">
             <Toggle
-              label="Debug overlay"
-              description="Draw seam guides and log Poisson scores to the console."
+              label="调试叠层"
+              description="显示拼缝参考线，并把泊松评分输出到控制台。"
               checked={debugMode}
               onChange={setDebugMode}
             />
           </Section>
 
-          <Section title="About">
+          <Section title="说明">
             <p
               className="text-[12px] leading-relaxed"
               style={{ color: 'var(--text-secondary)' }}
@@ -357,10 +371,10 @@ export function GenerateModal({
               <Icons.Sparkle size={15} />
             </div>
             <h2 className="text-[15px] font-semibold tracking-tight">
-              Generate image
+              生成图片
             </h2>
           </div>
-          <button onClick={onClose} className="icon-btn" aria-label="Close">
+          <button onClick={onClose} className="icon-btn" aria-label="关闭">
             <Icons.X size={16} />
           </button>
         </div>
@@ -386,7 +400,7 @@ export function GenerateModal({
                   className="text-[12px] font-medium"
                   style={{ color: 'var(--text-secondary)' }}
                 >
-                  Scene direction
+                  场景方向
                 </label>
                 {sceneBriefLoading ? (
                   <span
@@ -398,7 +412,7 @@ export function GenerateModal({
                   </span>
                 ) : (
                   <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                    Shared across all layers
+                    所有图层共享
                   </span>
                 )}
               </div>
@@ -415,12 +429,12 @@ export function GenerateModal({
 
           <div>
             <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-              {layerLabel ? `${layerLabel} layer` : 'Description'}
+              {layerLabel ? `${layerLabel} 图层` : '描述'}
             </label>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. A wide mountain valley at golden hour, with a winding river through pine forest"
+                placeholder="例如：金色黄昏下的宽阔山谷，一条蜿蜒河流穿过松林"
               rows={3}
               className="field resize-none"
               autoFocus
@@ -430,7 +444,7 @@ export function GenerateModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                Width
+                宽度
               </label>
               <select
                 value={width}
@@ -447,7 +461,7 @@ export function GenerateModal({
             </div>
             <div>
               <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-                Height
+                高度
               </label>
               <select
                 value={height}
@@ -466,7 +480,7 @@ export function GenerateModal({
 
           <div>
             <label className="mb-1.5 block text-[12px] font-medium" style={{ color: 'var(--text-secondary)' }}>
-              Style
+              风格
             </label>
             <select
               value={artStyle}
@@ -476,7 +490,7 @@ export function GenerateModal({
               {ART_STYLE_GROUPS.map((group) =>
                 group.options.length === 1 && group.label === 'Match original' ? (
                   <option key={group.options[0].value} value={group.options[0].value}>
-                    Photorealistic
+                    写实
                   </option>
                 ) : (
                   <optgroup key={group.label} label={group.label}>
@@ -494,7 +508,7 @@ export function GenerateModal({
 
         <div className="mt-6 flex items-center justify-end gap-2">
           <button onClick={onClose} disabled={generating} className="btn btn-ghost">
-            Cancel
+            取消
           </button>
           <button
             onClick={onGenerate}
@@ -522,6 +536,8 @@ export function ApiKeyModal({
   onSave,
   onSkip,
   onClose,
+  providerName,
+  usingCustomProvider,
 }: {
   open: boolean
   initialValue: string
@@ -530,6 +546,8 @@ export function ApiKeyModal({
   onSave: (key: string) => void
   onSkip?: () => void
   onClose: () => void
+  providerName: string
+  usingCustomProvider: boolean
 }) {
   const [value, setValue] = useState(initialValue)
   const [reveal, setReveal] = useState(false)
@@ -553,7 +571,8 @@ export function ApiKeyModal({
   if (!open) return null
 
   const trimmed = value.trim()
-  const looksValid = trimmed.startsWith('sk-or-') && trimmed.length > 20
+  const looksValid = trimmed.length >= 6
+  const providerLabel = usingCustomProvider ? providerName : 'OpenRouter'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 anim-fade">
@@ -581,14 +600,14 @@ export function ApiKeyModal({
           </div>
           <div className="flex-1">
             <h2 className="text-[15px] font-semibold tracking-tight">
-              {required ? 'Add your OpenRouter key' : 'OpenRouter API key'}
+              {required ? '添加 API 密钥' : 'API 密钥'}
             </h2>
             <p className="text-[12px]" style={{ color: 'var(--text-muted)' }}>
-              Required to generate or extend images.
+              生成或扩展图片时需要提供。
             </p>
           </div>
           {!required && (
-            <button onClick={onClose} className="icon-btn" aria-label="Close">
+            <button onClick={onClose} className="icon-btn" aria-label="关闭">
               <Icons.X size={16} />
             </button>
           )}
@@ -606,14 +625,14 @@ export function ApiKeyModal({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && looksValid) onSave(trimmed)
               }}
-              placeholder="sk-or-..."
+              placeholder={usingCustomProvider ? '请输入中转密钥' : 'sk-or-...'}
               className="field pr-10 font-mono text-[13px]"
             />
             <button
               type="button"
               onClick={() => setReveal((r) => !r)}
               className="icon-btn absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-              aria-label={reveal ? 'Hide key' : 'Show key'}
+              aria-label={reveal ? '隐藏密钥' : '显示密钥'}
               tabIndex={-1}
             >
               {reveal ? <Icons.EyeOff size={14} /> : <Icons.Eye size={14} />}
@@ -625,7 +644,12 @@ export function ApiKeyModal({
               style={{ color: 'var(--danger)' }}
             >
               <Icons.AlertTriangle size={13} className="mt-0.5 shrink-0" />
-              <span>OpenRouter keys start with <code className="font-mono">sk-or-</code>.</span>
+              <span>请输入你的服务商或中转平台签发的密钥。</span>
+            </div>
+          )}
+          {usingCustomProvider && (
+            <div className="mt-2 text-[12px]" style={{ color: 'var(--text-muted)' }}>
+              中转节点：<code className="font-mono">{providerLabel}</code>
             </div>
           )}
         </div>
@@ -642,21 +666,23 @@ export function ApiKeyModal({
           It&apos;s sent with each request to your local server, which proxies it to OpenRouter — never logged, never persisted server-side.
         </div>
 
-        <a
-          href="https://openrouter.ai/keys"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mb-5 inline-flex items-center gap-1.5 text-[12px] transition-colors"
-          style={{ color: 'var(--accent)' }}
-        >
-          Get a key at openrouter.ai/keys
-          <Icons.External size={11} />
-        </a>
+        {!usingCustomProvider && (
+          <a
+            href="https://openrouter.ai/keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-5 inline-flex items-center gap-1.5 text-[12px] transition-colors"
+            style={{ color: 'var(--accent)' }}
+          >
+            前往 openrouter.ai/keys 获取密钥
+            <Icons.External size={11} />
+          </a>
+        )}
 
         <div className="flex items-center justify-between gap-2">
-          {!required && onSkip ? (
+          {onSkip ? (
             <button onClick={onSkip} className="btn btn-ghost">
-              Use server env
+              使用服务端环境变量
             </button>
           ) : (
             <span />
@@ -667,7 +693,7 @@ export function ApiKeyModal({
             className="btn btn-primary"
           >
             <Icons.Check size={14} />
-            Save key
+            保存密钥
           </button>
         </div>
       </div>

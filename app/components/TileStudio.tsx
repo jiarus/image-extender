@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef } from 'react'
 import { Icons } from '@/app/components/icons'
@@ -78,7 +78,7 @@ export function TileSlotCell({
             color: 'var(--accent)',
             backdropFilter: 'blur(4px)',
           }}
-          title={`Replace this tile (separate call — may not match the rest). For best consistency, re-roll the whole sheet instead.`}
+          title={`替换该地块（单独调用，可能与整套风格有偏差）。要保持一致性，建议重生整张图。`}
         >
           <Icons.Sparkle size={11} />
         </button>
@@ -88,7 +88,7 @@ export function TileSlotCell({
 }
 
 /**
- * Platform preview — define only a binary platform shape, then resolve each
+ * Platform preview 鈥?define only a binary platform shape, then resolve each
  * occupied cell to a tile role from its neighbors. This mirrors how a simple
  * autotile importer works and avoids hand-placing role names in invalid spots.
  *
@@ -142,7 +142,7 @@ export function PlatformPreview({ tileSet }: { tileSet: TileSetSlot[] }) {
   // and image to slightly different device pixels under fractional widths,
   // leaking the sky gradient through as hairline seams between tiles. Drawing
   // every cell at an exact integer pixel rect makes adjacent tiles share a
-  // pixel boundary, so there is no gap to leak — the canvas as a whole is
+  // pixel boundary, so there is no gap to leak 鈥?the canvas as a whole is
   // then scaled uniformly by CSS.
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   // 96px/cell keeps downscaled detail crisp without an oversized canvas.
@@ -284,7 +284,7 @@ export function TileStudio({
 
   // Build a 4x4 layout array so empty cells render placeholders. Slots are
   // already in row-major order in TILESET_SLOTS, but a couple of grid
-  // positions are empty (3 cells in row 3) — represent those explicitly.
+  // positions are empty (3 cells in row 3) 鈥?represent those explicitly.
   type GridCell = { spec?: TileSetSlotSpec; slot?: TileSetSlot; empty?: boolean }
   const grid: GridCell[][] = []
   for (let r = 0; r < TILESET_ROWS; r++) {
@@ -306,9 +306,8 @@ export function TileStudio({
       <div className="flex items-center justify-center gap-2 text-[12px]">
         <Icons.Layers size={14} className="text-[color:var(--accent)]" />
         <span style={{ color: 'var(--text-secondary)' }}>
-          Tile-set mode — one AI call generates all 13 tiles as a single
-          sprite-sheet so palette and texture detail stay locked across
-          the set. Drop into Unity, Phaser, Godot, or Tiled.
+          地块模式：一次 AI 调用生成 13 个地块，保持整套贴图的配色与材质一致，可直接用于
+          Unity、Phaser、Godot、Tiled。
         </span>
       </div>
 
@@ -318,36 +317,36 @@ export function TileStudio({
           <button
             onClick={onStop}
             className="btn btn-danger"
-            title="Stop the current generation"
+            title="停止当前生成"
           >
             <Icons.Stop size={14} />
-            Stop
+            停止
           </button>
         ) : (
           <button
             onClick={onGenerateAll}
             disabled={!prompt.trim()}
             className="btn btn-primary"
-            title="Generate the full 4×4 sprite sheet in one AI call"
+            title="一次生成完整 4×4 地块表"
           >
             <Icons.Sparkle size={14} />
-            {hasAny ? 'Re-roll sheet' : 'Generate sheet (1 call)'}
+            {hasAny ? '重新生成整张表' : '生成整张表（1 次调用）'}
           </button>
         )}
         <button
           onClick={onDownloadSheet}
           disabled={!hasAny || generating}
           className="btn btn-secondary"
-          title="Export clean + padded sprite-sheet PNGs with a JSON manifest"
+          title="导出纯净版与带边距版精灵表 PNG，以及 JSON 清单"
         >
           <Icons.Download size={14} />
-          Sheets + manifest
+          图表 + 清单
         </button>
         <button
           onClick={onDownloadZip}
           disabled={!hasAny || generating}
           className="btn btn-ghost"
-          title="Export individual PNGs + clean sheet + padded sheet + manifest as a ZIP"
+          title="导出单独 PNG、纯净精灵表、带边距精灵表和清单（ZIP）"
         >
           <Icons.Layers size={14} />
           ZIP
@@ -356,10 +355,10 @@ export function TileStudio({
           onClick={onClearAll}
           disabled={!hasAny || generating}
           className="btn btn-ghost"
-          title="Clear all tiles and start over"
+          title="清空全部地块并重新开始"
         >
           <Icons.Trash size={14} />
-          Clear
+          清空
         </button>
         <div
           className="rounded-full border px-2.5 py-1 font-mono text-[11px]"
@@ -371,8 +370,7 @@ export function TileStudio({
               : 'var(--text-muted)',
           }}
         >
-          {filledCount}/{total} tiles
-          {progressMessage ? ` · ${progressMessage}` : ''}
+          {filledCount}/{total} 个地块{progressMessage ? ` · ${progressMessage}` : ''}
         </div>
       </div>
 
@@ -383,7 +381,7 @@ export function TileStudio({
             className="text-[11px] font-medium uppercase tracking-wider"
             style={{ color: 'var(--text-muted)' }}
           >
-            Sprite sheet (4×4)
+            地块表（4×4）
           </div>
           <div
             className="grid w-full"
@@ -423,12 +421,12 @@ export function TileStudio({
             className="flex items-center justify-between text-[11px] font-medium uppercase tracking-wider"
             style={{ color: 'var(--text-muted)' }}
           >
-            <span>Platform preview</span>
+            <span>平台预览</span>
             <span
               className="font-mono normal-case tracking-normal"
               style={{ color: 'var(--text-muted)' }}
             >
-              How tiles fit together
+              查看地块拼合效果
             </span>
           </div>
           <PlatformPreview tileSet={tileSet} />
@@ -436,10 +434,8 @@ export function TileStudio({
             className="text-[11px]"
             style={{ color: 'var(--text-muted)' }}
           >
-            Hover a tile and click the spark to replace it (uses a separate
-            call, may drift). For best consistency, re-roll the whole sheet.
-            Body/edges are tile-locked along their loop axis; corners stand
-            alone.
+            悬停地块后点击火花按钮可单独重生（单次调用，可能有漂移）。要保持一致性，
+            建议重生整张图。主体/边缘会沿对应轴向无缝循环，角块为独立块。
           </div>
         </div>
       </div>
@@ -459,7 +455,7 @@ export function TileStudio({
               className="text-[11px] font-medium uppercase tracking-wider"
               style={{ color: 'var(--text-muted)' }}
             >
-              Scene direction
+              场景方向
             </label>
             {sceneBriefLoading && (
               <span
@@ -467,7 +463,7 @@ export function TileStudio({
                 style={{ color: 'var(--accent)' }}
               >
                 <Icons.Spinner size={10} />
-                Updating…
+                更新中…
               </span>
             )}
           </div>
@@ -475,13 +471,13 @@ export function TileStudio({
             value={sceneBrief}
             onChange={(e) => setSceneBrief(e.target.value)}
             disabled={generating || sceneBriefLoading}
-            placeholder="Optional shared art direction. If you built a parallax scene, the brief is reused here so tiles match palette and lighting."
+            placeholder="可选的统一美术方向。如果你已做了视差场景，这里会复用该说明，让地块的配色和光照一致。"
             rows={2}
             className="field w-full resize-none text-[13px] leading-relaxed"
           />
         </div>
 
-        {/* Starter chips — one-click prompt scaffolds. Stays visible so
+        {/* Starter chips 鈥?one-click prompt scaffolds. Stays visible so
             the user can switch material mid-iteration. The active chip
             highlights when its prompt is exactly equal to the current
             input, so picking a preset and editing one word still feels
@@ -491,7 +487,7 @@ export function TileStudio({
             className="text-[11px] font-medium uppercase tracking-wider"
             style={{ color: 'var(--text-muted)' }}
           >
-            Quick start
+            快速开始
           </label>
           <div className="flex flex-wrap gap-1.5">
             {TILESET_PRESETS.map((preset) => {
@@ -544,7 +540,7 @@ export function TileStudio({
                 onGenerateAll()
               }
             }}
-            placeholder="Describe the material — or pick a quick start above"
+            placeholder="描述地块材质，或直接选择上方预设"
             className="flex-1 bg-transparent px-3 py-2.5 text-[14px] focus:outline-none"
             style={{ color: 'var(--text)' }}
           />
@@ -558,7 +554,7 @@ export function TileStudio({
               disabled={generating}
               className="select-styled cursor-pointer border-0 bg-transparent py-2 pl-3 pr-7 text-[13px] focus:outline-none"
               style={{ color: 'var(--text-secondary)' }}
-              title="Art style for the tile-set"
+              title="地块美术风格"
             >
               {ART_STYLE_GROUPS.map((group) =>
                 group.options.length === 1 && group.label === 'Match original' ? (
@@ -582,3 +578,4 @@ export function TileStudio({
     </div>
   )
 }
+

@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import {
+  buildProviderHeaders,
+  getProviderConfig,
+  missingApiKeyMessage,
+  resolveApiKey,
+} from '@/app/lib/provider'
 
 // QA ART DIRECTOR for sprite sheets — the review half of the sprite pipeline.
 //
@@ -159,14 +165,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing sprite sheet image' }, { status: 400 })
     }
 
-    const openRouterKey =
-      typeof apiKey === 'string' && apiKey.trim()
-        ? apiKey.trim()
-        : process.env.OPENROUTER_API_KEY
+    const providerKey = resolveApiKey(apiKey)
 
-    if (!openRouterKey) {
+    if (!providerKey) {
       return NextResponse.json(
-        { error: 'OpenRouter API key missing. Add one in Settings.' },
+        { error: missingApiKeyMessage() },
         { status: 401 }
       )
     }
@@ -255,14 +258,15 @@ Review the attached sprite sheet${hasAnchor ? ' against the character anchor' : 
     }
     content.push({ type: 'text', text: userText })
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const { chatCompletionsUrl } = getProviderConfig()
+
+    const response = await fetch(chatCompletionsUrl, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${openRouterKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': request.headers.get('referer') || 'http://localhost:3000',
-        'X-Title': 'AI Image Extender - Sprite QA',
-      },
+      headers: buildProviderHeaders(
+        request,
+        providerKey,
+        'AI Image Extender - Sprite QA'
+      ),
       body: JSON.stringify({
         model: modelId,
         messages: [

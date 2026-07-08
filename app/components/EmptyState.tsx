@@ -24,8 +24,7 @@ export function EmptyState({
           <div className="mb-5 flex items-center justify-center gap-2 text-[12px]">
             <Icons.Mountain size={14} className="text-[color:var(--accent)]" />
             <span style={{ color: 'var(--text-secondary)' }}>
-              Parallax mode — start with a base frame, then extend it sideways
-              into a long scrolling background.
+              视差模式：先准备一张基础画面，再向左右扩展成可滚动的长背景。
             </span>
           </div>
         )}
@@ -61,32 +60,27 @@ export function EmptyState({
             <Icons.Upload size={24} />
           </div>
           <p className="mb-1.5 text-[15px] font-medium" style={{ color: 'var(--text)' }}>
-            {isParallax ? 'Drop a starting frame' : 'Drop an image to begin'}
+            {isParallax ? '拖入一张起始画面' : '拖入图片开始'}
           </p>
           <p className="text-[13px]" style={{ color: 'var(--text-muted)' }}>
             {isParallax
-              ? 'A landscape image works best — its height becomes the game resolution'
-              : 'PNG, JPG, or WEBP — click anywhere in this area to browse'}
+              ? '更适合使用横向场景图，高度会作为游戏基准分辨率'
+              : '支持 PNG、JPG、WEBP，点击此区域也可选择文件'}
           </p>
         </div>
 
         <div className="mt-5 flex items-center justify-center gap-2 text-[13px]">
-          <span style={{ color: 'var(--text-muted)' }}>or</span>
+          <span style={{ color: 'var(--text-muted)' }}>或</span>
           <button
             onClick={onGenerate}
             className="inline-flex items-center gap-1.5 font-medium transition-colors"
             style={{ color: 'var(--accent)' }}
           >
             <Icons.Sparkle size={14} />
-            {isParallax ? 'generate a 16:9 starter with AI' : 'generate one with AI'}
+            {isParallax ? '用 AI 生成一张 16:9 起始图' : '用 AI 生成一张'}
           </button>
         </div>
       </div>
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CommandBar — floating bottom bar with prompt + style picker
-// ─────────────────────────────────────────────────────────────────────────────
-

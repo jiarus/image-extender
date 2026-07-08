@@ -246,6 +246,45 @@ export function normalizeImageToSize(
   })
 }
 
+/** Resize to the exact target dimensions without crop. Useful when an image
+ * generation API only supports a canonical size and the app needs to map the
+ * result back onto a fixed working canvas (sprite sheets, prop cells, etc.). */
+export function resizeImageToSize(
+  imageDataUrl: string,
+  targetWidth: number,
+  targetHeight: number
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+
+    img.onload = () => {
+      if (img.width === targetWidth && img.height === targetHeight) {
+        resolve(imageDataUrl)
+        return
+      }
+
+      const canvas = document.createElement('canvas')
+      canvas.width = targetWidth
+      canvas.height = targetHeight
+      const ctx = canvas.getContext('2d')
+
+      if (!ctx) {
+        resolve(imageDataUrl)
+        return
+      }
+
+      ctx.imageSmoothingEnabled = true
+      ctx.imageSmoothingQuality = 'high'
+      ctx.drawImage(img, 0, 0, targetWidth, targetHeight)
+      resolve(canvas.toDataURL('image/png'))
+    }
+
+    img.onerror = () => reject(new Error('Failed to load image for resize'))
+    img.src = imageDataUrl
+  })
+}
+
 function loadImageElement(dataUrl: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()

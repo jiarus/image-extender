@@ -123,13 +123,13 @@ export function MultiLayerPreview({
         className="text-[10px] font-medium uppercase tracking-wider"
         style={{ color: 'var(--text-muted)' }}
       >
-        Composite
+        合成预览
       </span>
       <button
         onClick={() => setPlaying((p) => !p)}
         className="icon-btn h-7 w-7"
-        aria-label={playing ? 'Pause preview' : 'Play preview'}
-        title={playing ? 'Pause' : 'Play'}
+        aria-label={playing ? '暂停预览' : '播放预览'}
+        title={playing ? '暂停' : '播放'}
       >
         {playing ? <Icons.Pause size={12} /> : <Icons.Play size={12} />}
       </button>
@@ -145,7 +145,7 @@ export function MultiLayerPreview({
         max={300}
         value={basePxPerSec}
         onChange={(e) => setBasePxPerSec(Number(e.target.value))}
-        aria-label="Camera scroll speed"
+        aria-label="镜头滚动速度"
         className="parallax-slider"
       />
       {fullscreen && (
@@ -159,7 +159,7 @@ export function MultiLayerPreview({
             className="text-[10px] font-medium uppercase tracking-wider"
             style={{ color: 'var(--text-muted)' }}
           >
-            Camera
+            镜头
           </span>
           <span
             className="font-mono text-[10px] tabular-nums"
@@ -173,8 +173,8 @@ export function MultiLayerPreview({
             max={100}
             value={Math.round(fullscreenZoom * 100)}
             onChange={(e) => setFullscreenZoom(Number(e.target.value) / 100)}
-            aria-label="Fullscreen camera zoom"
-            title="Pull the camera back to fit more horizontal scene on screen"
+            aria-label="全屏镜头缩放"
+            title="拉远镜头以在屏幕中容纳更多横向场景"
             className="parallax-slider"
           />
         </>
@@ -206,7 +206,7 @@ export function MultiLayerPreview({
           className="absolute inset-0 flex items-center justify-center text-[12px]"
           style={{ color: 'var(--text-muted)' }}
         >
-          Generate or upload at least one layer to preview the parallax
+          请先生成或上传至少一个图层，再预览视差效果
         </div>
       )}
       {layers.map((layer) => {
@@ -240,8 +240,8 @@ export function MultiLayerPreview({
           border: '1px solid var(--border-strong)',
           backdropFilter: 'blur(8px)',
         }}
-        aria-label={fullscreen ? 'Exit fullscreen preview' : 'Fullscreen preview'}
-        title={fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen preview'}
+        aria-label={fullscreen ? '退出全屏预览' : '全屏预览'}
+        title={fullscreen ? '退出全屏（Esc）' : '全屏预览'}
       >
         {fullscreen ? <Icons.Minimize size={14} /> : <Icons.Maximize size={14} />}
       </button>
@@ -269,7 +269,7 @@ export function MultiLayerPreview({
         style={{ background: 'rgba(0, 0, 0, 0.92)' }}
         role="dialog"
         aria-modal="true"
-        aria-label="Parallax scene preview"
+        aria-label="视差场景预览"
       >
         <div
           className="flex shrink-0 items-center justify-between px-4 py-3 sm:px-6"
@@ -277,10 +277,10 @@ export function MultiLayerPreview({
         >
           <div>
             <h2 className="text-[14px] font-semibold tracking-tight">
-              Scene preview
+              场景预览
             </h2>
             <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-              Live parallax composite · Esc to exit
+              实时视差合成 · 按 Esc 退出
             </p>
           </div>
           <button
@@ -289,7 +289,7 @@ export function MultiLayerPreview({
             className="btn btn-ghost"
           >
             <Icons.X size={14} />
-            Close
+            关闭
           </button>
         </div>
         <div className="flex min-h-0 flex-1 flex-col p-3 sm:p-4">
@@ -351,20 +351,20 @@ export function LayerPanel({
         background: 'var(--bg-elev)',
         borderRight: '1px solid var(--border)',
       }}
-      aria-label="Parallax layers"
+      aria-label="视差图层"
     >
       <div className="mb-1 flex items-center justify-between">
         <span
           className="text-[10px] font-medium uppercase tracking-wider"
           style={{ color: 'var(--text-muted)' }}
         >
-          Layers
+          图层
         </span>
         <span
           className="text-[10px]"
           style={{ color: 'var(--text-muted)' }}
         >
-          back → front
+          后景 → 前景
         </span>
       </div>
 
@@ -378,11 +378,11 @@ export function LayerPanel({
           }}
         >
           <span className="font-medium" style={{ color: 'var(--accent)' }}>
-            Step {getWorkflowStep(layers[recommendedIdx].role)} —{' '}
+            步骤 {getWorkflowStep(layers[recommendedIdx].role)} —{' '}
             {LAYER_ROLES[layers[recommendedIdx].role].short}
           </span>
           <br />
-          Build layers front-to-back so each step matches the scene in front of it.
+          建议按前景到后景构建图层，保证每一步都与前一层风格匹配。
         </div>
       )}
 
@@ -438,7 +438,7 @@ export function LayerPanel({
                       className="text-[10px]"
                       style={{ color: 'var(--text-muted)' }}
                     >
-                      empty
+                      空
                     </span>
                   )}
                 </div>
@@ -474,7 +474,7 @@ export function LayerPanel({
                         border: '1px solid var(--accent-border)',
                       }}
                     >
-                      Next
+                      下一步
                     </span>
                   )}
                 </div>
@@ -484,7 +484,7 @@ export function LayerPanel({
                 >
                   {isEmpty
                     ? isWaiting
-                      ? `Needs ${LAYER_ROLES[prerequisite!.role].short} first`
+                      ? `需先完成 ${LAYER_ROLES[prerequisite!.role].short}`
                       : spec.hint
                     : `${layer.width}×${layer.height}${spec.isOpaque ? '' : ' · α'}`}
                 </div>
@@ -495,7 +495,7 @@ export function LayerPanel({
                 className="text-[10px]"
                 style={{ color: 'var(--text-muted)' }}
               >
-                Speed
+                速度
               </span>
               <input
                 type="range"
@@ -506,8 +506,8 @@ export function LayerPanel({
                   onScrollSpeedChange(idx, Number(e.target.value) / 100)
                 }
                 className="parallax-slider flex-1"
-                aria-label={`${spec.label} scroll speed`}
-                title={`${layer.scrollSpeed.toFixed(2)}× camera speed`}
+                aria-label={`${spec.label} 滚动速度`}
+                title={`${layer.scrollSpeed.toFixed(2)}× 镜头速度`}
                 style={{ width: 'auto' }}
               />
               <span
@@ -521,8 +521,8 @@ export function LayerPanel({
               <button
                 onClick={() => onClearLayer(idx)}
                 className="absolute right-1 top-1 icon-btn h-6 w-6"
-                title={`Clear ${spec.short}`}
-                aria-label={`Clear ${spec.short} layer`}
+                title={`清空 ${spec.short}`}
+                aria-label={`清空 ${spec.short} 图层`}
               >
                 <Icons.Trash size={11} />
               </button>
@@ -534,8 +534,7 @@ export function LayerPanel({
         className="mt-1 text-[10px] leading-snug"
         style={{ color: 'var(--text-muted)' }}
       >
-        Build front → back: Near, then Mid, Far, Sky. Sky is opaque; the
-        others are alpha-keyed over it.
+        构建顺序：近景 → 中景 → 远景 → 天空。天空为不透明底层，其余图层使用透明叠加。
       </p>
     </aside>
   )
@@ -587,17 +586,14 @@ export function LayerEmptyState({
             }}
           >
             <p className="mb-2 font-medium" style={{ color: 'var(--text)' }}>
-              Step {step}: build {spec.short.toLowerCase()} after{' '}
-              {prerequisiteSpec.short.toLowerCase()}
+              步骤 {step}：请在 {prerequisiteSpec.short} 之后再制作 {spec.short}
             </p>
             <p className="mb-3">
-              Parallax layers stack back-to-front in the game, but we build them
-              front-to-back. Finish{' '}
+              游戏中图层是后景到前景叠放，但制作时建议前景到后景。先完成{' '}
               <strong style={{ color: 'var(--accent)' }}>
                 {prerequisiteSpec.label}
               </strong>{' '}
-              first so this layer matches the same palette, lighting, and art
-              direction.
+              可确保当前图层在配色、光照和画风上保持一致。
             </p>
             <button
               type="button"
@@ -608,7 +604,7 @@ export function LayerEmptyState({
                 color: '#1a1404',
               }}
             >
-              Go to {prerequisiteSpec.short} (step{' '}
+              前往 {prerequisiteSpec.short}（步骤{' '}
               {getWorkflowStep(prerequisite.role)})
             </button>
           </div>
@@ -662,26 +658,26 @@ export function LayerEmptyState({
             className="mb-1 text-[14px] font-medium"
             style={{ color: 'var(--text)' }}
           >
-            Drop a {spec.short.toLowerCase()} layer
+            拖入 {spec.short} 图层
           </p>
           <p
             className="text-[12px]"
             style={{ color: 'var(--text-muted)' }}
           >
             {spec.isOpaque
-              ? 'PNG, JPG, or WEBP — opaque image at this game height'
-              : 'PNG with transparency works best — the magenta key will be applied if needed'}
+              ? '支持 PNG、JPG、WEBP（建议使用与游戏高度匹配的不透明图）'
+              : '优先使用透明 PNG；若需要会自动套用洋红抠图'}
           </p>
         </div>
         <div className="mt-3 flex items-center justify-center gap-2 text-[12px]">
-          <span style={{ color: 'var(--text-muted)' }}>or</span>
+          <span style={{ color: 'var(--text-muted)' }}>或</span>
           <button
             onClick={onGenerate}
             className="inline-flex items-center gap-1.5 font-medium transition-colors"
             style={{ color: 'var(--accent)' }}
           >
             <Icons.Sparkle size={13} />
-            generate this layer with AI
+            用 AI 生成该图层
           </button>
         </div>
       </div>
@@ -895,7 +891,7 @@ export function ParallaxStudio({
                   className="text-[12px]"
                   style={{ color: 'var(--text-muted)' }}
                 >
-                  Click an edge to extend the {LAYER_ROLES[activeLayer.role].short.toLowerCase()} layer, or set a target and auto-extend
+                  点击左右边缘扩展 {LAYER_ROLES[activeLayer.role].short} 图层，或设置目标宽度后自动扩展
                 </span>
               )}
               {(loading || autoExtending) && (
@@ -904,8 +900,8 @@ export function ParallaxStudio({
                   message={
                     progressMessage ||
                     (activeDirection
-                      ? `Extending ${activeDirection}…`
-                      : 'Working…')
+                      ? `正在向${activeDirection === 'left' ? '左' : '右'}扩展…`
+                      : '处理中…')
                   }
                 />
               )}
@@ -937,7 +933,7 @@ export function ParallaxStudio({
                 onDownloadSecondary={onExportZip}
                 secondaryLabel="ZIP"
                 secondaryIcon={<Icons.Layers size={14} />}
-                secondaryTitle={`Export project: ${populatedCount}/${layers.length} populated layers + manifest`}
+                secondaryTitle={`导出工程：${populatedCount}/${layers.length} 个已填充图层 + 清单`}
                 secondaryDisabled={populatedCount === 0}
               />
             )}
@@ -974,8 +970,8 @@ export function ParallaxEdgeHandle({
     <button
       onClick={onClick}
       disabled={disabled}
-      title={`Extend ${direction}`}
-      aria-label={`Extend ${direction}`}
+      title={`向${direction === 'left' ? '左' : '右'}扩展`}
+      aria-label={`向${direction === 'left' ? '左' : '右'}扩展`}
       className={`absolute z-20 flex h-12 w-12 items-center justify-center rounded-full transition-all duration-200 ${
         active ? 'anim-pulse' : ''
       }`}
@@ -1078,7 +1074,7 @@ export function ParallaxTargetBar({
           className="text-[11px] font-medium uppercase tracking-wider"
           style={{ color: 'var(--text-muted)' }}
         >
-          Target
+          目标
         </span>
         <input
           type="number"
@@ -1090,7 +1086,7 @@ export function ParallaxTargetBar({
             const v = e.target.value
             setTargetWidth(v === '' ? null : Math.max(0, Number(v)))
           }}
-          placeholder="e.g. 7680"
+          placeholder="例如 7680"
           disabled={loading || autoExtending}
           className="w-24 rounded-[var(--radius-sm)] px-2 py-1 font-mono text-[12px]"
           style={{
@@ -1105,8 +1101,8 @@ export function ParallaxTargetBar({
         <button
           onClick={() => setShowPresets((s) => !s)}
           className="icon-btn h-7 w-7"
-          aria-label="Width presets"
-          title="Width presets"
+          aria-label="宽度预设"
+          title="宽度预设"
         >
           <Icons.Layers size={13} />
         </button>
@@ -1170,9 +1166,9 @@ export function ParallaxTargetBar({
           style={{ color: 'var(--text-secondary)', minWidth: 64 }}
         >
           {targetReached
-            ? 'Reached'
+            ? '已达到'
             : remainingPx > 0
-              ? `${remainingPx}px left`
+              ? `还差 ${remainingPx}px`
               : '—'}
         </span>
       </div>
@@ -1183,7 +1179,7 @@ export function ParallaxTargetBar({
           <button
             onClick={onStopAutoExtend}
             className="btn"
-            title="Stop auto-extend"
+            title="停止自动扩展"
             style={{
               color: 'var(--danger)',
               background: 'rgba(255, 107, 107, 0.08)',
@@ -1191,7 +1187,7 @@ export function ParallaxTargetBar({
             }}
           >
             <Icons.Stop size={14} />
-            Stop
+            停止
           </button>
         ) : (
           <button
@@ -1203,10 +1199,10 @@ export function ParallaxTargetBar({
               dimensions.width >= targetWidth
             }
             className="btn btn-primary"
-            title="Auto-extend right until target width is reached"
+            title="自动向右扩展直到达到目标宽度"
           >
             <Icons.Sparkle size={14} />
-            Auto-extend
+            自动扩展
           </button>
         )}
         <div
@@ -1219,10 +1215,10 @@ export function ParallaxTargetBar({
             onClick={onMakeTileable}
             disabled={loading || autoExtending || !!makeTileableDisabled}
             className="btn btn-ghost"
-            title="Make tileable — heals the loop-point seam so repeat-x scrolling has no visible joint"
+            title="无缝化：修复循环拼接缝，横向重复滚动无明显接缝"
           >
             <Icons.Loop size={14} />
-            Tileable
+            无缝化
           </button>
         )}
         {onHarmonize && (
@@ -1230,17 +1226,17 @@ export function ParallaxTargetBar({
             onClick={onHarmonize}
             disabled={loading || autoExtending || !!harmonizeDisabled}
             className="btn btn-ghost"
-            title="Harmonize — flatten cumulative color/brightness drift across many extensions"
+            title="统一色调：减少多次扩展后的颜色/亮度漂移"
           >
             <Icons.Smooth size={14} />
-            Harmonize
+            统一色调
           </button>
         )}
         <button
           onClick={onDownloadFull}
           disabled={loading || autoExtending}
           className="btn btn-ghost"
-          title="Download as a single PNG"
+          title="下载为单张 PNG"
         >
           <Icons.Download size={14} />
           PNG
@@ -1255,10 +1251,10 @@ export function ParallaxTargetBar({
               !!secondaryDisabled
             }
             className="btn btn-ghost"
-            title={secondaryTitle || secondaryLabel || 'Secondary export'}
+            title={secondaryTitle || secondaryLabel || '次级导出'}
           >
             {secondaryIcon ?? <Icons.Layers size={14} />}
-            {secondaryLabel ?? 'Export'}
+            {secondaryLabel ?? '导出'}
           </button>
         )}
       </div>

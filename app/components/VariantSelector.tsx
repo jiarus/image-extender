@@ -12,9 +12,7 @@ export function VariantSelector({
 }: {
   index: number
   total: number
-  /** True when the current variant is the algorithm-picked best blend. */
   isBest: boolean
-  /** Optional raw seam score, only shown in debug mode. */
   score?: number
   onPrev: () => void
   onNext: () => void
@@ -27,13 +25,13 @@ export function VariantSelector({
         background: 'var(--bg-elev)',
       }}
       role="group"
-      aria-label="Cycle between extension variants"
+      aria-label="切换扩图候选结果"
     >
       <button
         onClick={onPrev}
         className="icon-btn h-6 w-6"
-        aria-label="Previous variant (←)"
-        title="Previous variant (←)"
+        aria-label="上一个候选"
+        title="上一个候选"
       >
         <Icons.ArrowLeft size={13} />
       </button>
@@ -41,7 +39,7 @@ export function VariantSelector({
         className="font-mono text-[11px] tabular-nums"
         style={{ color: 'var(--text-secondary)' }}
       >
-        Variant {index + 1}/{total}
+        候选 {index + 1}/{total}
       </span>
       {isBest && (
         <span
@@ -51,16 +49,16 @@ export function VariantSelector({
             color: 'var(--accent)',
             border: '1px solid var(--accent-border)',
           }}
-          title="Algorithm's pick: lowest seam residual"
+          title="算法选择的最佳结果：拼缝残差最低"
         >
-          BEST
+          最佳
         </span>
       )}
       {typeof score === 'number' && (
         <span
           className="font-mono text-[10px]"
           style={{ color: 'var(--text-muted)' }}
-          title="Mean color difference at the seam — lower is better"
+          title="拼缝处平均色差，越低越好"
         >
           {score.toFixed(1)}
         </span>
@@ -68,19 +66,14 @@ export function VariantSelector({
       <button
         onClick={onNext}
         className="icon-btn h-6 w-6"
-        aria-label="Next variant (→)"
-        title="Next variant (→)"
+        aria-label="下一个候选"
+        title="下一个候选"
       >
         <Icons.ArrowRight size={13} />
       </button>
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Result actions — appears below the image when an extension is ready
-// ─────────────────────────────────────────────────────────────────────────────
-
 
 export function ResultActions({
   onAccept,
@@ -108,28 +101,28 @@ export function ResultActions({
         onClick={onDiscard}
         disabled={loading}
         className="btn btn-ghost"
-        title="Discard this extension"
+        title="丢弃这次扩图"
       >
         <Icons.X size={14} />
-        Discard
+        丢弃
       </button>
       <button
         onClick={onRegenerate}
         disabled={loading}
         className="btn btn-ghost"
-        title="Generate a new variation"
+        title="重新生成一个新版本"
       >
         {loading ? <Icons.Spinner size={14} /> : <Icons.Refresh size={14} />}
-        Regenerate
+        重生成
       </button>
       <button
         onClick={onDownload}
         disabled={loading}
         className="btn btn-ghost"
-        title="Download as PNG"
+        title="下载为 PNG"
       >
         <Icons.Download size={14} />
-        Download
+        下载
       </button>
       <div
         className="mx-1 h-5 w-px"
@@ -140,16 +133,11 @@ export function ResultActions({
         onClick={onAccept}
         disabled={loading}
         className="btn btn-primary"
-        title="Use this as the new base image"
+        title="将当前结果作为新的基础图"
       >
         <Icons.Check size={14} />
-        Accept
+        接受
       </button>
     </div>
   )
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Settings drawer — debug mode, generate-from-scratch entry point
-// ─────────────────────────────────────────────────────────────────────────────
-

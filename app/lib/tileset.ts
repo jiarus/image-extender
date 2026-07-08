@@ -64,19 +64,19 @@ export const TILESET_PADDED_SHEET_W = TILESET_COLS * TILESET_PADDED_STRIDE
 export const TILESET_PADDED_SHEET_H = TILESET_ROWS * TILESET_PADDED_STRIDE
 
 export const TILESET_SLOTS: TileSetSlotSpec[] = [
-  { role: 'tl_outer', label: 'TL', hint: 'Top-left outer corner — top + left exposed', col: 0, row: 0, fileName: 'corner-tl-outer' },
-  { role: 'top',      label: 'Top', hint: 'Top edge — surface where the player lands', col: 1, row: 0, fileName: 'edge-top' },
-  { role: 'tr_outer', label: 'TR', hint: 'Top-right outer corner — top + right exposed', col: 2, row: 0, fileName: 'corner-tr-outer' },
-  { role: 'tl_inner', label: 'TLᵢ', hint: 'Top-left inner corner — concave, for L-shapes', col: 3, row: 0, fileName: 'corner-tl-inner' },
-  { role: 'left',     label: 'Left', hint: 'Left edge — vertical side of a platform', col: 0, row: 1, fileName: 'edge-left' },
-  { role: 'body',     label: 'Body', hint: 'Interior fill — repeats inside the platform', col: 1, row: 1, fileName: 'body' },
-  { role: 'right',    label: 'Right', hint: 'Right edge — vertical side of a platform', col: 2, row: 1, fileName: 'edge-right' },
-  { role: 'tr_inner', label: 'TRᵢ', hint: 'Top-right inner corner — concave, for L-shapes', col: 3, row: 1, fileName: 'corner-tr-inner' },
-  { role: 'bl_outer', label: 'BL', hint: 'Bottom-left outer corner — bottom + left exposed', col: 0, row: 2, fileName: 'corner-bl-outer' },
-  { role: 'bottom',   label: 'Bot', hint: 'Bottom edge — underside of a floating platform', col: 1, row: 2, fileName: 'edge-bottom' },
-  { role: 'br_outer', label: 'BR', hint: 'Bottom-right outer corner — bottom + right exposed', col: 2, row: 2, fileName: 'corner-br-outer' },
-  { role: 'bl_inner', label: 'BLᵢ', hint: 'Bottom-left inner corner — concave, for L-shapes', col: 3, row: 2, fileName: 'corner-bl-inner' },
-  { role: 'br_inner', label: 'BRᵢ', hint: 'Bottom-right inner corner — concave, for L-shapes', col: 3, row: 3, fileName: 'corner-br-inner' },
+  { role: 'tl_outer', label: '左上外角', hint: '左上外角：上边与左边外露', col: 0, row: 0, fileName: 'corner-tl-outer' },
+  { role: 'top',      label: '上边', hint: '上边：角色可站立的表面', col: 1, row: 0, fileName: 'edge-top' },
+  { role: 'tr_outer', label: '右上外角', hint: '右上外角：上边与右边外露', col: 2, row: 0, fileName: 'corner-tr-outer' },
+  { role: 'tl_inner', label: '左上内角', hint: '左上内角：凹角，用于 L 形结构', col: 3, row: 0, fileName: 'corner-tl-inner' },
+  { role: 'left',     label: '左边', hint: '左边：平台左侧竖直边', col: 0, row: 1, fileName: 'edge-left' },
+  { role: 'body',     label: '主体', hint: '主体填充：平台内部重复区域', col: 1, row: 1, fileName: 'body' },
+  { role: 'right',    label: '右边', hint: '右边：平台右侧竖直边', col: 2, row: 1, fileName: 'edge-right' },
+  { role: 'tr_inner', label: '右上内角', hint: '右上内角：凹角，用于 L 形结构', col: 3, row: 1, fileName: 'corner-tr-inner' },
+  { role: 'bl_outer', label: '左下外角', hint: '左下外角：下边与左边外露', col: 0, row: 2, fileName: 'corner-bl-outer' },
+  { role: 'bottom',   label: '下边', hint: '下边：悬空平台底面', col: 1, row: 2, fileName: 'edge-bottom' },
+  { role: 'br_outer', label: '右下外角', hint: '右下外角：下边与右边外露', col: 2, row: 2, fileName: 'corner-br-outer' },
+  { role: 'bl_inner', label: '左下内角', hint: '左下内角：凹角，用于 L 形结构', col: 3, row: 2, fileName: 'corner-bl-inner' },
+  { role: 'br_inner', label: '右下内角', hint: '右下内角：凹角，用于 L 形结构', col: 3, row: 3, fileName: 'corner-br-inner' },
 ]
 
 
@@ -915,79 +915,79 @@ export interface TilePreset {
 export const TILESET_PRESETS: TilePreset[] = [
   {
     id: 'mossy-stone',
-    label: 'Mossy stone',
+    label: '苔藓石',
     prompt:
       'Beautifully hand-painted weathered granite in premium fantasy game-art style — a cool slate-grey stone core sculpted with soft volumetric form, fine hairline cracks and small embedded pebbles evenly distributed, a plush blanket of velvety emerald moss crowning the top and trailing softly into the upper crevices, freckles of pale sage lichen, gentle dappled forest light, painterly rim highlights, cohesive calm mossy-woodland palette, gorgeous AAA 2D platformer tileset',
   },
   {
     id: 'red-brick',
-    label: 'Red brick',
+    label: '红砖',
     prompt:
       'Exquisitely hand-painted old-town brickwork in cozy storybook game-art style — warm terracotta and clay-red bricks in a clean offset bond with deep umber mortar, soft rounded chips and gentle sun-faded weathering, subtle baked-clay color variation brick to brick, a thin living run of emerald moss along the very top edge only, smooth even matte finish, soft ambient afternoon light, cohesive warm earthen palette, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'snowy-stone',
-    label: 'Snowy peak',
+    label: '雪峰石',
     prompt:
       'Gorgeously hand-painted snow-capped mountain rock in crisp wintry game-art style — a slate-grey stone core threaded with pale glacier-blue mineral veins and soft volumetric shadow, a thick pristine pillow of fresh powder snow crowning the top with a delicate cool-blue underglow and sparkling specks, a couple of slender icicles hanging from the top edge, clean luminous shapes, cohesive fresh alpine palette, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'wood-planks',
-    label: 'Oak planks',
+    label: '橡木板',
     prompt:
       'Warmly hand-painted stacked oak planks in cozy woodland-cabin game-art style — honey-amber timber with flowing painterly wood grain and soft knots, slightly darker lovingly worn edges, thin softly-shadowed gaps between boards, the occasional weathered iron nail, gentle ambient candle-warm light, cohesive rich amber palette, smooth inviting finish, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'sand-stone',
-    label: 'Desert temple',
+    label: '沙漠神殿',
     prompt:
       'Elegantly hand-painted sun-bleached temple sandstone in golden-hour game-art style — a warm golden-tan core with gentle wind-rippled striations and softly eroded rounded edges, faint ancient carved glyphs pressed delicately into the surface, a fine dusting of pale sand catching light along the top, soft warm sunlit shading, cohesive dry ochre-and-amber palette, serene and majestic, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'lava-rock',
-    label: 'Volcanic rock',
+    label: '火山岩',
     prompt:
       'Dramatically hand-painted volcanic basalt in moody fantasy game-art style — a rough porous jet-black rock core with rich charcoal form, rivers of molten orange, amber and gold lava glowing deep inside the cracks with a soft inner bloom, a charred darker underside, faint rising heat shimmer, glow confined strictly to the cracks, cohesive intense ember palette against deep darks, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'cave-stone',
-    label: 'Glow cave',
+    label: '荧光洞窟',
     prompt:
       'Atmospherically hand-painted glow-cavern rock in enchanting game-art style — a charcoal-grey stone core with a subtle teal mineral sheen and cool shadowed crevices, clusters of small luminescent blue-and-cyan mushrooms lining the top edge casting a gentle bioluminescent bloom, faint glittering mineral flecks, cohesive mysterious cool palette with soft glowing accents, dreamy underground mood, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'crystal-ice',
-    label: 'Crystal ice',
+    label: '水晶冰',
     prompt:
       'Magically hand-painted enchanted glacier ice in luminous fantasy game-art style — a translucent pale-cyan ice core with faceted crystal shards glinting softly inside, a delicate frosted-snow cap on top, fine internal fractures catching light, cool glassy white and sky-blue highlights with gentle prismatic sparkle, cohesive clean magical winter palette, serene and ethereal, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'jungle-moss',
-    label: 'Jungle floor',
+    label: '雨林地表',
     prompt:
       'Lushly hand-painted rainforest floor in vibrant adventure game-art style — a deep damp dark-earth core laced with pale tangled roots, a thick cushion of emerald and lime moss across the top, small tropical ferns and a few tiny red-capped mushrooms sprouting along the crown, warm dappled jungle light filtering through, rich saturated humid greens, cohesive lively palette, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'autumn-soil',
-    label: 'Autumn earth',
+    label: '秋季土壤',
     prompt:
       'Cozily hand-painted autumn woodland soil in warm seasonal game-art style — a rich russet-brown earth core softly speckled with tiny stones and roots, a generous crown of golden, amber and warm-crimson fallen leaves layered over short dry grass along the top, soft golden-hour shading, gentle painterly highlights, cohesive warm harvest palette, inviting and nostalgic, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'temple-gold',
-    label: 'Marble & gold',
+    label: '大理石与金饰',
     prompt:
       'Opulently hand-painted ancient temple marble in regal fantasy game-art style — a pale ivory marble core with soft grey veining and gentle polished sheen, ornate engraved scrollwork picked out in warm antique-gold inlay, delicately chipped corners, a whisper of moss settled in the top grooves, soft elegant ambient light, cohesive luxurious ivory-and-gold palette, majestic and refined, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'obsidian',
-    label: 'Obsidian glass',
+    label: '黑曜石',
     prompt:
       'Sleekly hand-painted polished obsidian in luxurious dark-fantasy game-art style — a glossy jet-black volcanic-glass core with smooth sculpted form, a subtle teal-and-gold iridescent sheen rippling across the surface, sharp glassy chipped edges catching cool reflections, soft mysterious highlights, cohesive deep luxe palette with jewel-toned accents, elegant and dramatic, beautiful AAA 2D platformer tileset',
   },
   {
     id: 'coral-reef',
-    label: 'Coral reef',
+    label: '珊瑚礁',
     prompt:
       'Cheerfully hand-painted sunlit coral reef rock in bright underwater game-art style — a warm sandy-tan stone core encrusted with turquoise and orange coral, tiny white shells and barnacles dotted about, a soft seafoam-green algae cap along the top, gentle dappled sunlight filtering through water, cohesive vivid clean ocean palette kept clear of pinks and reds, playful and luminous, beautiful AAA 2D platformer tileset',
   },

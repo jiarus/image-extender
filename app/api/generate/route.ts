@@ -1,4 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import {
+  buildProviderHeaders,
+  getProviderConfig,
+  isImagesApiModel,
+  missingApiKeyMessage,
+  normalizeImagesApiSize,
+  resolveApiKey,
+} from '@/app/lib/provider'
 
 const DEFAULT_MODEL = 'google/gemini-3.1-flash-image-preview'
 
@@ -29,6 +37,16 @@ function supportedAspectRatioForSize(width: number, height: number): string {
       error: Math.abs(Math.log(aspectRatioValue(ratio) / target)),
     }))
     .sort((a, b) => a.error - b.error)[0].ratio
+}
+
+function extractImageFromImagesApiResponse(data: any): string | null {
+  const firstImage = Array.isArray(data?.data) ? data.data[0] : null
+  if (!firstImage) return null
+  if (typeof firstImage.url === 'string' && firstImage.url) return firstImage.url
+  if (typeof firstImage.b64_json === 'string' && firstImage.b64_json.length > 100) {
+    return `data:image/png;base64,${firstImage.b64_json}`
+  }
+  return null
 }
 
 export async function POST(request: NextRequest) {
@@ -77,13 +95,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const openRouterKey = (typeof apiKey === 'string' && apiKey.trim())
-      ? apiKey.trim()
-      : process.env.OPENROUTER_API_KEY
+    const providerKey = resolveApiKey(apiKey)
 
-    if (!openRouterKey) {
+    if (!providerKey) {
       return NextResponse.json(
-        { error: 'OpenRouter API key missing. Add one in Settings.' },
+        { error: missingApiKeyMessage() },
         { status: 401 }
       )
     }
@@ -1203,14 +1219,54 @@ ${
     })
 
     // Call OpenRouter API with image generation model
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const providerConfig = getProviderConfig()
+    const { chatCompletionsUrl } = providerConfig
+
+    if (isImagesApiModel(modelId)) {
+      const requestSize = normalizeImagesApiSize(Number(width), Number(height))
+      const response = await fetch(providerConfig.imagesGenerationsUrl, {
+        method: 'POST',
+        headers: buildProviderHeaders(
+          request,
+          providerKey,
+          'AI Image Extender - Generator'
+        ),
+        body: JSON.stringify({
+          model: modelId,
+          prompt: fullPrompt,
+          size: requestSize,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Provider API error:', errorData)
+        return NextResponse.json(
+          { error: errorData.error?.message || 'Failed to generate image' },
+          { status: response.status }
+        )
+      }
+
+      const data = await response.json()
+      const imageUrl = extractImageFromImagesApiResponse(data)
+
+      if (!imageUrl) {
+        return NextResponse.json(
+          { error: 'No image generated. The images API returned no image payload.' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({ imageUrl, names: [] })
+    }
+
+    const response = await fetch(chatCompletionsUrl, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openRouterKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': request.headers.get('referer') || 'http://localhost:3000',
-        'X-Title': 'AI Image Extender - Generator',
-      },
+      headers: buildProviderHeaders(
+        request,
+        providerKey,
+        'AI Image Extender - Generator'
+      ),
       body: JSON.stringify({
         model: modelId,
         messages: [
@@ -1246,7 +1302,7 @@ ${
 
     if (!response.ok) {
       const errorData = await response.json()
-      console.error('OpenRouter API error:', errorData)
+      console.error('Provider API error:', errorData)
       return NextResponse.json(
         { error: errorData.error?.message || 'Failed to generate image' },
         { status: response.status }

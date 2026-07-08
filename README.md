@@ -352,6 +352,15 @@ Open [http://localhost:3000](http://localhost:3000). On first load the app
 will prompt for your OpenRouter API key — paste it once, it's stored locally,
 you'll never see the prompt again unless you clear it from Settings.
 
+If you use an OpenAI-compatible relay/proxy instead of hitting OpenRouter
+directly, configure it in `.env.local` and the app will use that server-side
+fallback without forcing a browser key prompt:
+
+```bash
+OPENROUTER_API_KEY=your-relay-key
+OPENROUTER_BASE_URL=https://your-relay.example/v1
+```
+
 Get a key at [openrouter.ai/keys](https://openrouter.ai/keys). It costs
 about **$0.03 per Gemini extension** (Nano Banana 2 Flash Image).
 
@@ -368,6 +377,10 @@ cp .env.example .env.local
 
 When set, the server will use this key for any request that doesn't
 include a client-provided one.
+
+`OPENROUTER_BASE_URL` accepts either a `/v1` base URL or a full
+`/chat/completions` URL. `OPENAI_API_KEY` and `OPENAI_BASE_URL` are also
+accepted as aliases.
 
 ## Usage
 
@@ -470,6 +483,8 @@ A few small values you might want to tune:
   OpenRouter, then discards it.
 - The server-side `OPENROUTER_API_KEY` env var is **optional** and acts only
   as a fallback for requests that don't include a client-provided key.
+- `OPENROUTER_BASE_URL` can point at an OpenAI-compatible relay or proxy
+  instead of OpenRouter directly.
 - No analytics, no telemetry, no tracking.
 
 ## Acknowledgments

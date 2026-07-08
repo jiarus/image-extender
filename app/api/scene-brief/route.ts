@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import {
+  buildProviderHeaders,
+  getProviderConfig,
+  missingApiKeyMessage,
+  resolveApiKey,
+} from '@/app/lib/provider'
 
 const DEFAULT_MODEL = 'google/gemini-2.0-flash-001'
 
@@ -33,14 +39,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const openRouterKey =
-      typeof apiKey === 'string' && apiKey.trim()
-        ? apiKey.trim()
-        : process.env.OPENROUTER_API_KEY
+    const providerKey = resolveApiKey(apiKey)
 
-    if (!openRouterKey) {
+    if (!providerKey) {
       return NextResponse.json(
-        { error: 'OpenRouter API key missing. Add one in Settings.' },
+        { error: missingApiKeyMessage() },
         { status: 401 }
       )
     }
@@ -67,14 +70,15 @@ Rules for your brief:
 
 Write the shared scene brief for all parallax layers.`
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const { chatCompletionsUrl } = getProviderConfig()
+
+    const response = await fetch(chatCompletionsUrl, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${openRouterKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': request.headers.get('referer') || 'http://localhost:3000',
-        'X-Title': 'AI Image Extender - Scene Brief',
-      },
+      headers: buildProviderHeaders(
+        request,
+        providerKey,
+        'AI Image Extender - Scene Brief'
+      ),
       body: JSON.stringify({
         model: modelId,
         messages: [
