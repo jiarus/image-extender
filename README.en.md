@@ -1,6 +1,6 @@
 ﻿# Image Extender
 
-English | [简体中文](README.zh-CN.md)
+English | [简体中文](README.md)
 
 
 > Seamlessly extend any image in any direction with AI — then build whole 2D
