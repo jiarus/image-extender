@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from 'react'
 import { Icons } from '@/app/components/icons'
 import { ART_STYLE_GROUPS } from '@/app/lib/artStyles'
 import {
+  SPRITE_FACING_LABELS,
   SPRITE_ANIMATIONS,
   SPRITE_FRAME_COUNT,
   SPRITE_FRAME_SIZE,
   SPRITE_SHEET_H,
   SPRITE_SHEET_W,
   SpriteAnimType,
+  SpriteFacing,
   SpriteFrame,
   SpriteSheet,
 } from '@/app/lib/sprite'
@@ -316,6 +318,203 @@ export function SpriteFrameCell({
   )
 }
 
+function SpriteBgRemovalTool({
+  sourceImageUrl,
+  resultImageUrl,
+  processing,
+  onUpload,
+  onClear,
+  onDownload,
+}: {
+  sourceImageUrl: string | null
+  resultImageUrl: string | null
+  processing: boolean
+  onUpload: (file: File) => void
+  onClear: () => void
+  onDownload: () => void
+}) {
+  const uploadInputRef = useRef<HTMLInputElement | null>(null)
+  const [dragOver, setDragOver] = useState(false)
+  const hasResult = !!resultImageUrl
+
+  return (
+    <aside
+      className="flex h-full flex-col gap-3 rounded-[var(--radius-lg)] p-3"
+      style={{
+        border: '1px solid var(--border)',
+        background: 'var(--bg-elev)',
+        boxShadow: '0 18px 40px -18px rgba(0,0,0,0.55)',
+      }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <span
+            className="text-[11px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            背景透明化
+          </span>
+          <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+            上传白底、棋盘格或纯色背景图片，输出透明 PNG。
+          </span>
+        </div>
+        {processing && <Icons.Spinner size={15} className="text-[color:var(--accent)]" />}
+      </div>
+
+      <input
+        ref={uploadInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) onUpload(file)
+          e.target.value = ''
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={() => !processing && uploadInputRef.current?.click()}
+        disabled={processing}
+        onDragOver={(e) => {
+          if (processing) return
+          e.preventDefault()
+          setDragOver(true)
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault()
+          setDragOver(false)
+          if (processing) return
+          const file = e.dataTransfer.files?.[0]
+          if (file) onUpload(file)
+        }}
+        className="group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-3.5 py-3 text-left transition-colors"
+        style={{
+          border: `1.5px dashed ${dragOver ? 'var(--accent)' : 'var(--border-strong)'}`,
+          background: dragOver ? 'var(--accent-bg)' : 'var(--bg)',
+          cursor: processing ? 'not-allowed' : 'pointer',
+          opacity: processing ? 0.6 : 1,
+        }}
+      >
+        <span
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-colors"
+          style={{
+            background: dragOver ? 'var(--accent)' : 'var(--bg-elev)',
+            color: dragOver ? '#fff' : 'var(--accent)',
+            border: '1px solid var(--border)',
+          }}
+        >
+          <Icons.Upload size={15} />
+        </span>
+        <span className="flex min-w-0 flex-col">
+          <span className="text-[13px] font-medium" style={{ color: 'var(--text)' }}>
+            {hasResult ? '更换图片' : '上传待抠图图片'}
+          </span>
+          <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            拖到这里，或点击选择文件
+          </span>
+        </span>
+      </button>
+
+      <div className="grid grid-cols-1 gap-3">
+        <div className="flex flex-col gap-1.5">
+          <span
+            className="text-[11px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            原图
+          </span>
+          <div
+            className="relative overflow-hidden rounded-[var(--radius-md)]"
+            style={{
+              aspectRatio: '1 / 1',
+              border: '1px solid var(--border)',
+              background: 'var(--bg)',
+            }}
+          >
+            {sourceImageUrl ? (
+              <img
+                src={sourceImageUrl}
+                alt="原图预览"
+                draggable={false}
+                className="h-full w-full"
+                style={{ objectFit: 'contain' }}
+              />
+            ) : (
+              <div
+                className="flex h-full items-center justify-center px-4 text-center text-[12px]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                上传后在这里显示原图
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span
+            className="text-[11px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            透明结果
+          </span>
+          <div
+            className="checker relative overflow-hidden rounded-[var(--radius-md)]"
+            style={{
+              aspectRatio: '1 / 1',
+              border: '1px solid var(--border)',
+              background:
+                'linear-gradient(180deg, rgba(140, 195, 235, 0.08), rgba(40, 70, 110, 0.12))',
+            }}
+          >
+            {resultImageUrl ? (
+              <img
+                src={resultImageUrl}
+                alt="透明结果预览"
+                draggable={false}
+                className="h-full w-full"
+                style={{ objectFit: 'contain' }}
+              />
+            ) : (
+              <div
+                className="flex h-full items-center justify-center px-4 text-center text-[12px]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                处理完成后在这里显示透明结果
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-auto flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={onDownload}
+          disabled={!hasResult || processing}
+          className="btn btn-secondary"
+          title="下载透明 PNG"
+        >
+          <Icons.Download size={14} />
+          下载 PNG
+        </button>
+        <button
+          type="button"
+          onClick={onClear}
+          disabled={(!sourceImageUrl && !resultImageUrl) || processing}
+          className="btn btn-ghost"
+          title="清空当前图片"
+        >
+          <Icons.Trash size={14} />
+          清空
+        </button>
+      </div>
+    </aside>
+  )
+}
+
 export function SpriteStudio({
   sheet,
   anchor,
@@ -323,6 +522,8 @@ export function SpriteStudio({
   setBodyPlan,
   selectedAnim,
   setSelectedAnim,
+  attackFacing,
+  setAttackFacing,
   generatedAnims,
   prompt,
   setPrompt,
@@ -341,6 +542,12 @@ export function SpriteStudio({
   onDownloadSheet,
   onDownloadZip,
   onToggleFrame,
+  bgToolSource,
+  bgToolResult,
+  bgToolProcessing,
+  onUploadBgToolImage,
+  onClearBgTool,
+  onDownloadBgTool,
 }: {
   sheet: SpriteSheet
   anchor: {
@@ -353,6 +560,8 @@ export function SpriteStudio({
   setBodyPlan: (v: BodyPlan) => void
   selectedAnim: SpriteAnimType
   setSelectedAnim: (v: SpriteAnimType) => void
+  attackFacing: SpriteFacing
+  setAttackFacing: (v: SpriteFacing) => void
   generatedAnims: Set<SpriteAnimType>
   prompt: string
   setPrompt: (v: string) => void
@@ -371,6 +580,12 @@ export function SpriteStudio({
   onDownloadSheet: () => void
   onDownloadZip: () => void
   onToggleFrame: (index: number) => void
+  bgToolSource: string | null
+  bgToolResult: string | null
+  bgToolProcessing: boolean
+  onUploadBgToolImage: (file: File) => void
+  onClearBgTool: () => void
+  onDownloadBgTool: () => void
 }) {
   const [playing, setPlaying] = useState(true)
   const [dragOver, setDragOver] = useState(false)
@@ -426,6 +641,38 @@ export function SpriteStudio({
           )
         })}
       </div>
+      {bodyPlan === 'biped' && selectedAnim === 'attack' && (
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          <span
+            className="mr-1 text-[11px] font-medium uppercase tracking-wider"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            攻击朝向
+          </span>
+          {(Object.keys(SPRITE_FACING_LABELS) as SpriteFacing[]).map((facing) => {
+            const active = attackFacing === facing
+            return (
+              <button
+                key={facing}
+                type="button"
+                onClick={() => setAttackFacing(facing)}
+                disabled={generating}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12px] font-medium transition-colors"
+                style={{
+                  border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                  background: active ? 'var(--accent-bg)' : 'var(--bg-elev)',
+                  color: active ? 'var(--accent)' : 'var(--text-secondary)',
+                  cursor: generating ? 'not-allowed' : 'pointer',
+                  opacity: generating ? 0.5 : 1,
+                }}
+                title={`攻击朝向：${SPRITE_FACING_LABELS[facing]}`}
+              >
+                {SPRITE_FACING_LABELS[facing]}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center justify-center gap-1.5">
         {BODY_PLANS[bodyPlan].anims.map((animType) => {
@@ -533,7 +780,7 @@ export function SpriteStudio({
         </div>
       </div>
 
-      <div className="grid w-full flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
+      <div className="grid w-full flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)] xl:grid-cols-[minmax(0,380px)_minmax(0,1fr)_320px]">
         <div className="flex flex-col gap-3">
           <SpriteAnimationPlayer
             frames={sheet.frames}
@@ -792,6 +1039,17 @@ export function SpriteStudio({
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="lg:col-span-2 xl:col-span-1">
+          <SpriteBgRemovalTool
+            sourceImageUrl={bgToolSource}
+            resultImageUrl={bgToolResult}
+            processing={bgToolProcessing}
+            onUpload={onUploadBgToolImage}
+            onClear={onClearBgTool}
+            onDownload={onDownloadBgTool}
+          />
         </div>
       </div>
     </div>

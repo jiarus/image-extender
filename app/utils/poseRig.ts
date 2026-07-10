@@ -47,6 +47,8 @@ export interface PoseGuideOptions {
   anim: string
   /** Which body plan's rig to render (defaults to biped). */
   bodyPlan?: BodyPlanId
+  /** Optional direction variant for animations that support it. */
+  facing?: 'right' | 'left' | 'up' | 'down'
   cols: number
   rows: number
   cellSize: number
@@ -65,10 +67,14 @@ export function drawPoseGuideSheet(
   ctx: CanvasRenderingContext2D,
   opts: PoseGuideOptions
 ) {
-  const { anim, cols, rows, cellSize, frameCount, subject } = opts
+  const { anim, cols, rows, cellSize, frameCount, subject, facing } = opts
   const colors = opts.colors ?? DEFAULT_COLORS
   const rig = RIGS[opts.bodyPlan ?? 'biped'] ?? RIGS.biped
-  const frames = rig.getFrames(anim)
+  const animKey =
+    opts.bodyPlan === 'biped' && anim === 'attack' && facing
+      ? `${anim}:${facing}`
+      : anim
+  const frames = rig.getFrames(animKey)
 
   ctx.fillStyle = colors.key
   ctx.fillRect(0, 0, cols * cellSize, rows * cellSize)

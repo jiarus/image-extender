@@ -158,7 +158,17 @@ function parseReview(raw: string): Review | null {
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, anim, bodyPlan, sceneBrief, apiKey, model, sheetImage, anchorImage } =
+    const {
+      prompt,
+      anim,
+      bodyPlan,
+      facing,
+      sceneBrief,
+      apiKey,
+      model,
+      sheetImage,
+      anchorImage,
+    } =
       await request.json()
 
     if (typeof sheetImage !== 'string' || !sheetImage.startsWith('data:image/')) {
@@ -185,7 +195,37 @@ export async function POST(request: NextRequest) {
     const expectation =
       ANIM_EXPECTATION_BY_PLAN[planKey][animKey] ||
       'a coherent character animation sequence read left-to-right, top-to-bottom.'
-    const planRules = PLAN_RULES[planKey] ?? PLAN_RULES.biped
+    const planRules = { ...(PLAN_RULES[planKey] ?? PLAN_RULES.biped) }
+    const facingKey =
+      typeof facing === 'string' && ['right', 'left', 'up', 'down'].includes(facing)
+        ? facing
+        : 'right'
+    const facingLabel =
+      facingKey === 'left'
+        ? 'LEFT'
+        : facingKey === 'up'
+          ? 'UP'
+          : facingKey === 'down'
+            ? 'DOWN'
+            : 'RIGHT'
+    const expectedAnimation =
+      planKey === 'biped' && animKey === 'attack'
+        ? facingKey === 'left'
+          ? `${expectation} All frames must keep LEFT-facing orientation.`
+          : facingKey === 'up'
+            ? `${expectation} The character stays in side profile while the attack arc clearly reads UPWARD in all frames.`
+            : facingKey === 'down'
+              ? `${expectation} The character stays in side profile while the attack arc clearly reads DOWNWARD in all frames.`
+              : `${expectation} All frames must keep RIGHT-facing orientation.`
+        : expectation
+    if (planKey === 'biped' && animKey === 'attack') {
+      planRules.facing = `Consistent FACING — the character stays in ${facingLabel}-facing profile every frame (no flip or turn to camera).`
+    }
+
+    if (planKey === 'biped' && animKey === 'attack' && (facingKey === 'up' || facingKey === 'down')) {
+      planRules.facing =
+        'Consistent VIEW — the character stays in a readable side profile every frame; only the attack arc changes upward/downward. Do not rotate the whole character or turn to camera.'
+    }
 
     const hasAnchor =
       typeof anchorImage === 'string' && anchorImage.startsWith('data:image/')
@@ -198,7 +238,7 @@ You are shown the sprite sheet: a grid of animation frames read left-to-right, t
         : ''
     }
 
-The intended animation is: ${expectation}
+The intended animation is: ${expectedAnimation}
 
 ACCEPTANCE CRITERIA — the sheet is APPROVED only if it passes EVERY rule below. If even ONE rule fails, REJECT and report it.
 

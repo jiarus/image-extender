@@ -25,6 +25,14 @@ export type SpriteAnimType =
   | 'bounce'
   | 'lunge'
 
+export type SpriteFacing = 'right' | 'left' | 'up' | 'down'
+
+export const SPRITE_FACING_LABELS: Record<SpriteFacing, string> = {
+  right: '右',
+  left: '左',
+  up: '上',
+  down: '下',
+}
 
 export const SPRITE_FRAME_SIZE = 512
 

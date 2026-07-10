@@ -16,7 +16,7 @@ import { findStyleLabel } from '@/app/lib/artStyles'
 import { DEFAULT_MODEL, MODELS, getModelConfig, skipsArtDirectorReview } from '@/app/lib/models'
 import { LAYER_ORDER, LAYER_ROLES, LayerRole, PARALLAX_MAX_AUTO_STEPS, ParallaxLayer, WORKFLOW_ORDER, createDefaultLayers, getRecommendedLayerIndex, getWorkflowPrerequisite } from '@/app/lib/parallax'
 import { PROP_BATCH, PROP_BATCH_COLS, PROP_BATCH_H, PROP_BATCH_ROWS, PROP_BATCH_W, PROP_TILE_SIZE, PropItem, nextPropId, propAtlasLayout, resolvePropNames } from '@/app/lib/props'
-import { SPRITE_ANIMATIONS, SPRITE_FRAME_COUNT, SPRITE_FRAME_SIZE, SPRITE_GRID_COLS, SPRITE_GRID_ROWS, SPRITE_SHEET_H, SPRITE_SHEET_W, SPRITE_STRIP_H, SPRITE_STRIP_W, SpriteAnimType, SpriteFrame, SpriteSheet, createEmptySpriteSheet } from '@/app/lib/sprite'
+import { SPRITE_ANIMATIONS, SPRITE_FRAME_COUNT, SPRITE_FRAME_SIZE, SPRITE_GRID_COLS, SPRITE_GRID_ROWS, SPRITE_SHEET_H, SPRITE_SHEET_W, SPRITE_STRIP_H, SPRITE_STRIP_W, SpriteAnimType, SpriteFacing, SpriteFrame, SpriteSheet, createEmptySpriteSheet } from '@/app/lib/sprite'
 import { BODY_PLANS, BodyPlan, isAirborneAnim } from '@/app/lib/bodyPlans'
 import { CORNER_GRAFTS, ENABLE_CORNER_RECONCILE, TILESET_ATLAS_EXTRUDE_PX, TILESET_BY_ROLE, TILESET_COLS, TILESET_PADDED_SHEET_H, TILESET_PADDED_SHEET_W, TILESET_PADDED_STRIDE, TILESET_ROWS, TILESET_SHEET_H, TILESET_SHEET_W, TILESET_SLOTS, TILESET_TILE_SIZE, TILE_TEMPLATE_CELL, TILE_TEMPLATE_COLS, TILE_TEMPLATE_H, TILE_TEMPLATE_MASK, TILE_TEMPLATE_ROWS, TILE_TEMPLATE_SAMPLES, TILE_TEMPLATE_W, TileSetRole, TileSetSlot, alignAiOutputToTemplate, applyFeatheredRoleMask, buildTileSheetGuideDataUrl, createEmptyTileSet, rebuildCornerTile, reconcileAllCorners, templateRoleForCell } from '@/app/lib/tileset'
 import { alignSpriteFramesToBaseline, applyFullContextResult, centerSpriteFramesHorizontally, chromaKeyToAlpha, createChunkedExtension, createFullContextExtension, getImageDimensions, harmonizeHorizontalSeams, isolatePrimarySpriteComponent, isAiExtensionUnfilled, makeHorizontallyTileable, makeTileable2D, makeVerticallyTileable, measureSeamResidual, normalizeSpriteFrameScale, removeFrameBorder, removeUploadedBackground, resizeImageToSize, sliceImageGrid, stitchExtendedChunk } from '@/app/utils/imageProcessor'
@@ -142,6 +142,7 @@ export default function Home() {
   // animations, and the choreography/QA the API uses.
   const [spriteBodyPlan, setSpriteBodyPlan] = useState<BodyPlan>('biped')
   const [spriteAnim, setSpriteAnim] = useState<SpriteAnimType>('idle')
+  const [spriteAttackFacing, setSpriteAttackFacing] = useState<SpriteFacing>('right')
   const [spriteSheet, setSpriteSheet] = useState<SpriteSheet>(() =>
     createEmptySpriteSheet('idle')
   )
@@ -151,25 +152,31 @@ export default function Home() {
   // Cleared when the character identity (anchor) or body plan changes, since
   // cached sheets belong to the previous character/plan.
   const spriteSheetCacheRef = useRef<Record<string, SpriteSheet>>({})
-  const spriteCacheKey = (plan: BodyPlan, anim: SpriteAnimType) =>
-    `${plan}:${anim}`
+  const spriteCacheKey = (
+    plan: BodyPlan,
+    anim: SpriteAnimType,
+    facing: SpriteFacing
+  ) => `${plan}:${anim}:${facing}`
   // Set of animation types (for the CURRENT plan) that have a generated
   // (cached) sheet, used to mark those tabs with a dot.
   const [spriteGeneratedAnims, setSpriteGeneratedAnims] = useState<
     Set<SpriteAnimType>
   >(new Set())
   useEffect(() => {
-    spriteSheetCacheRef.current[spriteCacheKey(spriteBodyPlan, spriteSheet.anim)] =
+    spriteSheetCacheRef.current[
+      spriteCacheKey(spriteBodyPlan, spriteSheet.anim, spriteAttackFacing)
+    ] =
       spriteSheet
     const prefix = `${spriteBodyPlan}:`
     const next = new Set<SpriteAnimType>()
     for (const [key, sheet] of Object.entries(spriteSheetCacheRef.current)) {
       if (key.startsWith(prefix) && sheet && sheet.frames.some((f) => !!f.imageUrl)) {
-        next.add(key.slice(prefix.length) as SpriteAnimType)
+        const animKey = key.slice(prefix.length).split(':')[0]
+        next.add(animKey as SpriteAnimType)
       }
     }
     setSpriteGeneratedAnims(next)
-  }, [spriteSheet, spriteBodyPlan])
+  }, [spriteSheet, spriteBodyPlan, spriteAttackFacing])
   const [spriteAnchor, setSpriteAnchor] = useState<{
     /** Chroma-keyed thumbnail (transparent background) for display. */
     imageUrl: string
@@ -191,6 +198,10 @@ export default function Home() {
   const [spriteGenerating, setSpriteGenerating] = useState(false)
   const [spriteProgressMsg, setSpriteProgressMsg] = useState<string | null>(null)
   const spriteStopRef = useRef(false)
+  const [spriteBgToolSource, setSpriteBgToolSource] = useState<string | null>(null)
+  const [spriteBgToolResult, setSpriteBgToolResult] = useState<string | null>(null)
+  const [spriteBgToolFileName, setSpriteBgToolFileName] = useState('sprite')
+  const [spriteBgToolProcessing, setSpriteBgToolProcessing] = useState(false)
 
   // Modal/drawer state
   const [showGenerateModal, setShowGenerateModal] = useState(false)
@@ -527,6 +538,15 @@ export default function Home() {
         })
       }
       img.src = c.imageUrl
+    })
+  }, [])
+
+  const readFileAsDataUrl = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = () => reject(new Error('Failed to read the file'))
+      reader.readAsDataURL(file)
     })
   }, [])
 
@@ -2412,12 +2432,31 @@ export default function Home() {
     // Persist the current sheet, then restore a previously generated sheet for
     // the target animation if we have one cached (so the user can flip back and
     // forth without losing results). Falls back to a fresh empty sheet.
-    spriteSheetCacheRef.current[spriteCacheKey(spriteBodyPlan, spriteAnim)] =
+    spriteSheetCacheRef.current[
+      spriteCacheKey(spriteBodyPlan, spriteAnim, spriteAttackFacing)
+    ] =
       spriteSheet
-    const cached = spriteSheetCacheRef.current[spriteCacheKey(spriteBodyPlan, next)]
+    const cached =
+      spriteSheetCacheRef.current[
+        spriteCacheKey(spriteBodyPlan, next, spriteAttackFacing)
+      ]
     setSpriteAnim(next)
     setSpriteSheet(cached ?? createEmptySpriteSheet(next))
     setSpriteFps(cached?.fps ?? SPRITE_ANIMATIONS[next].defaultFps)
+    setSpriteProgressMsg(null)
+  }
+
+  const handleSelectSpriteAttackFacing = (next: SpriteFacing) => {
+    if (next === spriteAttackFacing) return
+    if (spriteGenerating) return
+    spriteSheetCacheRef.current[
+      spriteCacheKey(spriteBodyPlan, spriteAnim, spriteAttackFacing)
+    ] = spriteSheet
+    const cached =
+      spriteSheetCacheRef.current[spriteCacheKey(spriteBodyPlan, spriteAnim, next)]
+    setSpriteAttackFacing(next)
+    setSpriteSheet(cached ?? createEmptySpriteSheet(spriteAnim))
+    setSpriteFps(cached?.fps ?? SPRITE_ANIMATIONS[spriteAnim].defaultFps)
     setSpriteProgressMsg(null)
   }
 
@@ -2432,6 +2471,7 @@ export default function Home() {
     spriteSheetCacheRef.current = {}
     setSpriteBodyPlan(next)
     setSpriteAnim(nextAnim)
+    setSpriteAttackFacing('right')
     setSpriteSheet(createEmptySpriteSheet(nextAnim))
     setSpriteFps(SPRITE_ANIMATIONS[nextAnim].defaultFps)
     setSpriteAnchor(null)
@@ -2500,6 +2540,7 @@ export default function Home() {
   const runSpriteSheetPass = async (
     prompt: string,
     anchorRawUrl: string | null,
+    attackFacing: SpriteFacing,
     fixNotes?: string
   ): Promise<{
     rawSheetUrl: string
@@ -2509,7 +2550,7 @@ export default function Home() {
     let guideImage: string | undefined
     if (anchorRawUrl) {
       try {
-        guideImage = await buildSpriteSheetGuideDataUrl(anchorRawUrl)
+        guideImage = await buildSpriteSheetGuideDataUrl(anchorRawUrl, attackFacing)
       } catch (err) {
         console.warn('Sprite guide build failed; proceeding without it:', err)
       }
@@ -2527,6 +2568,7 @@ export default function Home() {
         spriteSheet: true,
         spriteAnim,
         spriteBodyPlan,
+        spriteFacing: attackFacing,
         spriteFrameCount: SPRITE_FRAME_COUNT,
         spriteGridCols: SPRITE_GRID_COLS,
         spriteGridRows: SPRITE_GRID_ROWS,
@@ -2573,21 +2615,18 @@ export default function Home() {
         } catch {
           cleaned = keyed
         }
-        // Non-humanoid generations, especially long quadrupeds, can still
-        // duplicate/spill across a hidden cell boundary. Keep the main
-        // connected creature silhouette and erase detached secondary copies
-        // before alignment/playback/export.
-        if (spriteBodyPlan !== 'biped') {
-          try {
-            // Compact bodies (quadruped/blob) can have two creatures fused by a
-            // thin bridge; allow morphological splitting for them. Thin subjects
-            // (serpent/flyer) must NOT be split or erosion would fragment them.
-            const enableSplit =
-              spriteBodyPlan === 'quadruped' || spriteBodyPlan === 'blob'
-            cleaned = await isolatePrimarySpriteComponent(cleaned, { enableSplit })
-          } catch {
-            // Keep the prior cleanup if component isolation fails.
-          }
+        // All body plans can duplicate/spill across hidden cell boundaries.
+        // Always keep the primary connected silhouette; only enable bridge-
+        // splitting on compact bodies where it's safe.
+        try {
+          // Compact bodies (quadruped/blob) can have two creatures fused by a
+          // thin bridge; allow morphological splitting for them. Thin subjects
+          // (biped/serpent/flyer) should not be eroded aggressively.
+          const enableSplit =
+            spriteBodyPlan === 'quadruped' || spriteBodyPlan === 'blob'
+          cleaned = await isolatePrimarySpriteComponent(cleaned, { enableSplit })
+        } catch {
+          // Keep the prior cleanup if component isolation fails.
         }
         return cleaned
       })
@@ -2679,6 +2718,7 @@ export default function Home() {
           prompt: spritePrompt.trim() || undefined,
           anim: spriteAnim,
           bodyPlan: spriteBodyPlan,
+          facing: spriteAttackFacing,
           sceneBrief: sceneBrief.trim() ? sceneBrief.trim() : undefined,
           apiKey: apiKey || undefined,
           sheetImage,
@@ -2801,6 +2841,7 @@ export default function Home() {
     spriteStopRef.current = false
     setSpriteGenerating(true)
     const startedAt = Date.now()
+    const attackFacingAtStart = spriteAttackFacing
 
     // Prompt sent to the sheet pass. With an uploaded character the appearance
     // comes from the reference image, so fall back to a neutral description.
@@ -2870,7 +2911,8 @@ export default function Home() {
       phaseLabel = 'Painting frames (2/2)'
       let sheetResult = await runSpriteSheetPass(
         effectivePrompt,
-        anchorRef?.rawImageUrl ?? null
+        anchorRef?.rawImageUrl ?? null,
+        attackFacingAtStart
       )
       if (spriteStopRef.current) return
 
@@ -2922,6 +2964,7 @@ export default function Home() {
         sheetResult = await runSpriteSheetPass(
           effectivePrompt,
           anchorRef?.rawImageUrl ?? null,
+          attackFacingAtStart,
           fixNotes
         )
         if (spriteStopRef.current) return
@@ -3058,6 +3101,48 @@ export default function Home() {
     }
   }
 
+  const handleUploadSpriteBgToolImage = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose an image file for background removal.')
+      return
+    }
+    setError(null)
+    setSpriteBgToolProcessing(true)
+    try {
+      const dataUrl = await readFileAsDataUrl(file)
+      const cleaned = await removeUploadedBackground(dataUrl, {
+        maxSize: 8192,
+        transparentSkipFraction: 0.01,
+      })
+      setSpriteBgToolSource(dataUrl)
+      setSpriteBgToolResult(cleaned)
+      setSpriteBgToolFileName(file.name.replace(/\.[^.]+$/, '') || 'sprite')
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to remove the image background.'
+      )
+    } finally {
+      setSpriteBgToolProcessing(false)
+    }
+  }
+
+  const handleClearSpriteBgTool = () => {
+    if (spriteBgToolProcessing) return
+    setSpriteBgToolSource(null)
+    setSpriteBgToolResult(null)
+    setSpriteBgToolFileName('sprite')
+  }
+
+  const handleDownloadSpriteBgTool = () => {
+    if (!spriteBgToolResult) return
+    const link = document.createElement('a')
+    link.href = spriteBgToolResult
+    link.download = `${spriteBgToolFileName}_transparent.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   /** Remove the uploaded character so the user can switch back to a starter
    * preset or their own prompt. Keeps the typed prompt intact; drops the
    * anchor, the orphaned cached animations, and the current sheet. */
@@ -3121,7 +3206,8 @@ export default function Home() {
    * baseline-alignment pass.
    */
   const buildSpriteSheetGuideDataUrl = async (
-    anchorRawImageUrl: string
+    anchorRawImageUrl: string,
+    attackFacing: SpriteFacing
   ): Promise<string> => {
     const subject = await measureAnchorSubject(anchorRawImageUrl)
     const canvas = document.createElement('canvas')
@@ -3133,6 +3219,7 @@ export default function Home() {
     drawPoseGuideSheet(ctx, {
       anim: spriteAnim,
       bodyPlan: spriteBodyPlan,
+      facing: spriteAnim === 'attack' ? attackFacing : undefined,
       cols: SPRITE_GRID_COLS,
       rows: SPRITE_GRID_ROWS,
       cellSize: SPRITE_FRAME_SIZE,
@@ -3277,6 +3364,7 @@ export default function Home() {
       bodyPlan: spriteBodyPlan,
       bodyPlanLabel: BODY_PLANS[spriteBodyPlan].label,
       anim: spriteAnim,
+      facing: spriteAttackFacing,
       label: spec.label,
       frameCount: count,
       frameSize: SPRITE_FRAME_SIZE,
@@ -3975,6 +4063,8 @@ export default function Home() {
           setBodyPlan={handleSelectBodyPlan}
           selectedAnim={spriteAnim}
           setSelectedAnim={handleSelectSpriteAnim}
+          attackFacing={spriteAttackFacing}
+          setAttackFacing={handleSelectSpriteAttackFacing}
           generatedAnims={spriteGeneratedAnims}
           prompt={spritePrompt}
           setPrompt={setSpritePrompt}
@@ -3993,6 +4083,12 @@ export default function Home() {
           onDownloadSheet={handleDownloadSpriteSheet}
           onDownloadZip={handleDownloadSpriteZip}
           onToggleFrame={handleToggleSpriteFrame}
+          bgToolSource={spriteBgToolSource}
+          bgToolResult={spriteBgToolResult}
+          bgToolProcessing={spriteBgToolProcessing}
+          onUploadBgToolImage={handleUploadSpriteBgToolImage}
+          onClearBgTool={handleClearSpriteBgTool}
+          onDownloadBgTool={handleDownloadSpriteBgTool}
         />
       ) : isTile ? (
         <TileStudio

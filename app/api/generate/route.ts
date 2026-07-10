@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
       spriteAnchor,
       spriteAnim,
       spriteBodyPlan,
+      spriteFacing,
       spriteFrameCount,
       spriteGridCols,
       spriteGridRows,
@@ -902,13 +903,60 @@ ${buildFrameMap([
         typeof spriteBodyPlan === 'string' && CHOREOGRAPHY_BY_PLAN[spriteBodyPlan]
           ? spriteBodyPlan
           : 'biped'
+      const facing =
+        typeof spriteFacing === 'string' &&
+        ['right', 'left', 'up', 'down'].includes(spriteFacing)
+          ? spriteFacing
+          : 'right'
       const planChoreography = CHOREOGRAPHY_BY_PLAN[bodyPlan]
 
       const animType =
         typeof spriteAnim === 'string' && planChoreography[spriteAnim]
           ? spriteAnim
           : Object.keys(planChoreography)[0]
-      const choreography = planChoreography[animType]
+      const bipedAttackChoreographyByFacing: Record<string, string> = {
+        right: animChoreography.attack,
+        left: `ATTACK ACTION — character attacks IN PLACE, profile, facing LEFT, plays ONCE (does NOT loop). Character's feet are PLANTED at the cell baseline through the whole action (no horizontal translation):
+${buildFrameMap([
+  'neutral combat stance facing LEFT. Weapon held ready near the body.',
+  'anticipation — weapon pulled back to the RIGHT side, body coiling, weight shifting onto the back leg.',
+  'DEEP WIND-UP — PEAK COIL. Weight fully on back leg, weapon at maximum back position on the RIGHT side.',
+  'forward burst — body uncoiling toward the LEFT, weapon traveling left fast, weight shifting onto the front leg.',
+  'IMPACT / MAX EXTENSION — weapon at the FURTHEST LEFT point of the swing, body in a full lunge left, front leg planted firmly left, back leg straightening behind.',
+  'follow-through — weapon swinging slightly past the impact point, body still committed left.',
+  'recovery start — weapon pulling back toward the body, weight rebalancing onto the back leg.',
+  'return to neutral combat stance facing LEFT, matching FRAME 1.',
+])}
+- The whole body stays in left-facing side profile for all 8 frames. The attack reads LEFT, not right.`,
+        up: `ATTACK ACTION — character attacks UPWARD in PLACE, side-view profile, plays ONCE (does NOT loop). The body remains side-on; the weapon/hand motion travels UP, not by rotating the whole character. Character's feet stay planted at the cell baseline:
+${buildFrameMap([
+  'neutral combat stance in side profile. Weapon held ready near shoulder height.',
+  'anticipation — weapon dips slightly back and down, body coiling and knees softening.',
+  'DEEP WIND-UP — striking arm draws farther back while the off arm balances; torso compresses before the upward release.',
+  'upward release — striking arm whips upward, torso opening, head tracking the rising attack.',
+  'IMPACT / MAX EXTENSION — weapon or fist reaches its HIGHEST point above the head on an upward arc. Clear upward strike silhouette.',
+  'follow-through — arm continues slightly past the high point, shoulders lifted, body still extended upward.',
+  'recovery start — striking arm comes back down toward guard, body lowering from the extension.',
+  'return to neutral combat stance, matching FRAME 1.',
+])}
+- Critical: this is an UPWARD attack arc. Do NOT rotate the entire character upward. Keep a readable side-view character with the attack aimed above the head.`,
+        down: `ATTACK ACTION — character attacks DOWNWARD in PLACE, side-view profile, plays ONCE (does NOT loop). The body remains side-on; the weapon/hand motion travels DOWN toward the ground. Character's feet stay planted at the cell baseline:
+${buildFrameMap([
+  'neutral combat stance in side profile. Weapon held ready above or beside the shoulder.',
+  'anticipation — weapon rises slightly higher, body coiling for a downward slam, knees bending.',
+  'DEEP WIND-UP — weapon reaches the highest loaded position, torso preparing to drive downward.',
+  'downward release — body uncoils, striking arm cutting down fast toward the ground in front.',
+  'IMPACT / MAX EXTENSION — weapon or fist reaches its LOWEST strike point toward the ground with a strong downward silhouette.',
+  'follow-through — attack continues a little past impact, shoulders and torso still committed downward.',
+  'recovery start — striking arm lifts back toward guard, weight rebalancing.',
+  'return to neutral combat stance, matching FRAME 1.',
+])}
+- Critical: this is a DOWNWARD attack arc. Do NOT rotate the whole character. Keep a readable side-view character with the strike aimed toward the ground.`,
+      }
+      let choreography =
+        bodyPlan === 'biped' && animType === 'attack'
+          ? bipedAttackChoreographyByFacing[facing] ?? planChoreography[animType]
+          : planChoreography[animType]
 
       // Per-body-plan POSE MAP instructions. The biped's "left/right leg, depth
       // shading" language doesn't translate to four legs, a wing pair, a single
@@ -930,7 +978,11 @@ ${buildFrameMap([
           sameStays:
             'SAME LEG STAYS NEAR: the light (near) leg is the SAME physical leg in every cell and the dark (far) leg the SAME \u2014 do NOT swap which leg is light vs dark between frames.',
           facing:
-            'ONE FACING: the character faces RIGHT in every cell (profile / side view), exactly like the mannequins.',
+            bodyPlan === 'biped' && animType === 'attack' && facing === 'left'
+              ? 'ONE FACING: the character faces LEFT in every cell (profile / side view), exactly like the mannequins.'
+              : bodyPlan === 'biped' && animType === 'attack' && (facing === 'up' || facing === 'down')
+                ? 'ONE VIEW: keep the character in a consistent side-view profile in every cell. The ATTACK ARC changes upward/downward, but the whole character does not rotate toward the camera or sky.'
+              : 'ONE FACING: the character faces RIGHT in every cell (profile / side view), exactly like the mannequins.',
           footprint:
             'same horizontal center, same height (head-top to feet), same foot baseline. The mannequin already encodes \u201Cin place\u201D / no sliding (airborne frames lift the whole skeleton uniformly).',
         },
@@ -1070,7 +1122,11 @@ BACKGROUND (every cell, no exceptions):
 - The character's own pixels MUST AVOID pure magenta colors — no hot pink hair, no pure magenta clothing, no pure magenta jewels. The chroma-key downstream removes any pixel where (R > 200 AND G < 80 AND B > 200), so use slightly desaturated cousins (rose, hot pink with more red) if the character needs a magenta-adjacent color.
 
 ART DIRECTION:
-- Side-view (profile), character facing RIGHT in every cell.
+- Side-view (profile), character facing ${
+  bodyPlan === 'biped' && animType === 'attack' && facing === 'left'
+    ? 'LEFT'
+    : 'RIGHT'
+} in every cell.
 - Crisp silhouette against the magenta. NO drop shadow, NO ground plane, NO ground line drawn, NO motion blur lines outside the character, NO ground decorations.
 - Even ambient lighting — no directional cast shadows on the character, no rim light, no center spotlight.
 - No text, no captions, no frame numbers, no UI, no health bars, no signature, no watermark.
@@ -1085,6 +1141,15 @@ Output the sprite sheet: ${frames} cells in a ${cols}×${rows} grid, identical c
           ? `\n\nQA FIX REPORT — a previous attempt at this sheet was reviewed and had the following problems. This regeneration MUST correct them while keeping the character's identity (outfit, colors, proportions) IDENTICAL to the reference:\n${spriteFixNotes.trim()}`
           : ''
       }`
+      if (bodyPlan === 'biped' && animType === 'attack') {
+        fullPrompt += facing === 'left'
+          ? `\n\nATTACK DIRECTION OVERRIDE (strict): keep the whole character LEFT-facing in ALL frames. Do not flip back to right in any frame.`
+          : facing === 'up'
+            ? `\n\nATTACK DIRECTION OVERRIDE (strict): keep the character in side profile and make the attack arc read UPWARD in ALL frames. Do not rotate the entire character upward.`
+            : facing === 'down'
+              ? `\n\nATTACK DIRECTION OVERRIDE (strict): keep the character in side profile and make the attack arc read DOWNWARD in ALL frames. Do not rotate the entire character downward.`
+              : `\n\nATTACK DIRECTION OVERRIDE (strict): keep the attack reading RIGHT in ALL frames.`
+      }
     } else if (propSheet === true) {
       // PROPS / DECORATION ATLAS — call #2 of the two-call pipeline. The ART
       // DIRECTOR (a separate text-model call) has already decided WHAT to paint
@@ -1302,8 +1367,10 @@ ${
     if (isImagesApiModel(modelId) && requiresReferenceInputs) {
       const requestSize = normalizeImagesApiSize(Number(width), Number(height))
       const refDataUrl =
-        // For sprite generation, identity lock is the highest priority:
-        // uploaded/locked character reference must win over pose-guide image.
+        // For uploaded-character sprite sheets, identity is the top priority.
+        // Use the identity anchor first so the model follows the user's
+        // character reference. Fall back to pose guide when identity isn't
+        // available.
         (hasSpriteIdentityImage ? spriteIdentityImage : undefined) ||
         (hasSpriteGuideImage ? spriteGuideImage : undefined) ||
         (hasTileGuideImage ? tileGuideImage : undefined) ||

@@ -126,6 +126,25 @@ function pose(
   }
 }
 
+function mirrorLimb(limb: Limb2): Limb2 {
+  return {
+    base: -limb.base,
+    flex: limb.flex,
+  }
+}
+
+function mirrorFrame(frame: FramePose): FramePose {
+  return {
+    ...frame,
+    lean: -frame.lean,
+    headTilt: frame.headTilt != null ? -frame.headTilt : undefined,
+    legA: mirrorLimb(frame.legA),
+    legB: mirrorLimb(frame.legB),
+    armA: mirrorLimb(frame.armA),
+    armB: mirrorLimb(frame.armB),
+  }
+}
+
 const WALK = buildLocomotion(WALK_LEG, {
   lean: 6,
   bobAmp: 0.018,
@@ -173,6 +192,30 @@ const ATTACK: FramePose[] = [
   { lean: 6, bodyY: 0, legA: { base: 14, flex: 14 }, legB: { base: -16, flex: 18 }, armA: { base: 30, flex: 60 }, armB: { base: -10, flex: 30 } },
 ]
 
+const ATTACK_LEFT: FramePose[] = ATTACK.map(mirrorFrame)
+
+const ATTACK_UP: FramePose[] = [
+  { lean: 2, bodyY: 0, legA: { base: 12, flex: 14 }, legB: { base: -14, flex: 18 }, armA: { base: 18, flex: 58 }, armB: { base: -8, flex: 26 } },
+  { lean: -4, bodyY: 0.005, legA: { base: 8, flex: 18 }, legB: { base: -18, flex: 24 }, armA: { base: -20, flex: 95 }, armB: { base: -16, flex: 24 } },
+  { lean: -8, bodyY: 0.01, legA: { base: 6, flex: 20 }, legB: { base: -22, flex: 28 }, armA: { base: -55, flex: 120 }, armB: { base: -20, flex: 22 } },
+  { lean: 4, bodyY: 0.005, legA: { base: 14, flex: 18 }, legB: { base: -18, flex: 22 }, armA: { base: 5, flex: 145 }, armB: { base: -4, flex: 32 } },
+  { lean: 10, bodyY: 0, legA: { base: 20, flex: 16 }, legB: { base: -18, flex: 16 }, armA: { base: 28, flex: 165 }, armB: { base: 6, flex: 36 } },
+  { lean: 12, bodyY: 0, legA: { base: 24, flex: 16 }, legB: { base: -18, flex: 16 }, armA: { base: 40, flex: 150 }, armB: { base: 10, flex: 34 } },
+  { lean: 8, bodyY: 0, legA: { base: 18, flex: 16 }, legB: { base: -16, flex: 18 }, armA: { base: 24, flex: 110 }, armB: { base: 2, flex: 30 } },
+  { lean: 4, bodyY: 0, legA: { base: 14, flex: 14 }, legB: { base: -14, flex: 18 }, armA: { base: 18, flex: 64 }, armB: { base: -8, flex: 28 } },
+]
+
+const ATTACK_DOWN: FramePose[] = [
+  { lean: 8, bodyY: 0, legA: { base: 14, flex: 14 }, legB: { base: -16, flex: 18 }, armA: { base: 55, flex: 80 }, armB: { base: 0, flex: 28 } },
+  { lean: 2, bodyY: 0.005, legA: { base: 10, flex: 16 }, legB: { base: -18, flex: 22 }, armA: { base: 15, flex: 130 }, armB: { base: -8, flex: 24 } },
+  { lean: -2, bodyY: 0.01, legA: { base: 8, flex: 20 }, legB: { base: -20, flex: 28 }, armA: { base: -10, flex: 165 }, armB: { base: -14, flex: 20 } },
+  { lean: 12, bodyY: -0.005, legA: { base: 20, flex: 18 }, legB: { base: -16, flex: 20 }, armA: { base: 35, flex: 120 }, armB: { base: 8, flex: 28 } },
+  { lean: 24, bodyY: -0.015, legA: { base: 30, flex: 18 }, legB: { base: -22, flex: 12 }, armA: { base: 70, flex: 88 }, armB: { base: 20, flex: 30 } },
+  { lean: 28, bodyY: -0.02, legA: { base: 34, flex: 16 }, legB: { base: -24, flex: 10 }, armA: { base: 92, flex: 70 }, armB: { base: 24, flex: 32 } },
+  { lean: 16, bodyY: -0.01, legA: { base: 24, flex: 16 }, legB: { base: -18, flex: 14 }, armA: { base: 68, flex: 95 }, armB: { base: 12, flex: 30 } },
+  { lean: 8, bodyY: 0, legA: { base: 16, flex: 14 }, legB: { base: -16, flex: 18 }, armA: { base: 42, flex: 86 }, armB: { base: 2, flex: 28 } },
+]
+
 const HURT: FramePose[] = [
   pose(4, 0, 4, 10, 4, 16),
   pose(-22, -0.02, -10, 30, -50, 35, { headTilt: -18 }),
@@ -201,6 +244,10 @@ const ANIMS: Record<string, FramePose[]> = {
   run: RUN,
   jump: JUMP,
   attack: ATTACK,
+  'attack:right': ATTACK,
+  'attack:left': ATTACK_LEFT,
+  'attack:up': ATTACK_UP,
+  'attack:down': ATTACK_DOWN,
   hurt: HURT,
   death: DEATH,
 }
