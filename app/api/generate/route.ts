@@ -49,6 +49,15 @@ function extractImageFromImagesApiResponse(data: any): string | null {
   return null
 }
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/)
+  if (!match) {
+    throw new Error('Invalid image data URL')
+  }
+  const [, mimeType, base64] = match
+  return new Blob([Buffer.from(base64, 'base64')], { type: mimeType })
+}
+
 export async function POST(request: NextRequest) {
   try {
     const {
@@ -1222,7 +1231,34 @@ ${
     const providerConfig = getProviderConfig()
     const { chatCompletionsUrl } = providerConfig
 
-    if (isImagesApiModel(modelId)) {
+    const hasTileGuideImage =
+      tileSheet === true &&
+      typeof tileGuideImage === 'string' &&
+      tileGuideImage.startsWith('data:image/')
+    const hasSpriteGuideImage =
+      spriteSheet === true &&
+      typeof spriteGuideImage === 'string' &&
+      spriteGuideImage.startsWith('data:image/')
+    const hasSpriteIdentityImage =
+      spriteSheet === true &&
+      typeof spriteIdentityImage === 'string' &&
+      spriteIdentityImage.startsWith('data:image/')
+    const hasPropReferenceImage =
+      (propSheet === true || propMode === true) &&
+      typeof propRefImage === 'string' &&
+      propRefImage.startsWith('data:image/')
+
+    // GPT Images API path is text-only in our current integration.
+    // If this request needs reference images (tile/template, sprite identity/pose,
+    // props style reference), we must use chat/completions so the image inputs
+    // are actually sent to the model.
+    const requiresReferenceInputs =
+      hasTileGuideImage ||
+      hasSpriteGuideImage ||
+      hasSpriteIdentityImage ||
+      hasPropReferenceImage
+
+    if (isImagesApiModel(modelId) && !requiresReferenceInputs) {
       const requestSize = normalizeImagesApiSize(Number(width), Number(height))
       const response = await fetch(providerConfig.imagesGenerationsUrl, {
         method: 'POST',
@@ -1257,6 +1293,69 @@ ${
         )
       }
 
+      return NextResponse.json({ imageUrl, names: [] })
+    }
+
+    // Images API-compatible relays often do NOT route gpt-image-* on
+    // chat/completions. When reference inputs are required, use images/edits
+    // with a single representative reference image instead of chat mode.
+    if (isImagesApiModel(modelId) && requiresReferenceInputs) {
+      const requestSize = normalizeImagesApiSize(Number(width), Number(height))
+      const refDataUrl =
+        // For sprite generation, identity lock is the highest priority:
+        // uploaded/locked character reference must win over pose-guide image.
+        (hasSpriteIdentityImage ? spriteIdentityImage : undefined) ||
+        (hasSpriteGuideImage ? spriteGuideImage : undefined) ||
+        (hasTileGuideImage ? tileGuideImage : undefined) ||
+        (hasPropReferenceImage ? propRefImage : undefined)
+
+      if (!refDataUrl) {
+        return NextResponse.json(
+          { error: 'Reference image is required but missing.' },
+          { status: 400 }
+        )
+      }
+
+      const formData = new FormData()
+      formData.append('model', modelId)
+      formData.append('prompt', fullPrompt)
+      formData.append('size', requestSize)
+      formData.append(
+        'image',
+        dataUrlToBlob(refDataUrl),
+        `reference.${refDataUrl.includes('image/jpeg') ? 'jpg' : 'png'}`
+      )
+
+      const response = await fetch(providerConfig.imagesEditsUrl, {
+        method: 'POST',
+        headers: buildProviderHeaders(
+          request,
+          providerKey,
+          'AI Image Extender - Generator',
+          { contentType: null }
+        ),
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errBody = await response.text()
+        let errorMessage = 'Failed to generate image from reference input'
+        try {
+          errorMessage = JSON.parse(errBody)?.error?.message || errorMessage
+        } catch {
+          errorMessage = errBody.slice(0, 500) || errorMessage
+        }
+        return NextResponse.json({ error: errorMessage }, { status: response.status })
+      }
+
+      const data = await response.json()
+      const imageUrl = extractImageFromImagesApiResponse(data)
+      if (!imageUrl) {
+        return NextResponse.json(
+          { error: 'No image generated. The images edit API returned no image payload.' },
+          { status: 500 }
+        )
+      }
       return NextResponse.json({ imageUrl, names: [] })
     }
 

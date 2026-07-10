@@ -103,6 +103,11 @@ export function buildProviderHeaders(
     Authorization: `Bearer ${apiKey}`,
   }
 
+  // Compatibility headers for relays/proxies that do not read Bearer auth.
+  // Many OpenAI-compatible gateways expect one of these custom key headers.
+  headers['X-API-Key'] = apiKey
+  headers['api-key'] = apiKey
+
   if (options?.contentType !== null) {
     headers['Content-Type'] = options?.contentType || 'application/json'
   }
